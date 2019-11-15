@@ -39,7 +39,7 @@ def getCurrentTimestamp() -> float:
     return round(datetime.now().timestamp(), 3)
 
 
-def createMessageHeader(node: int, t: beMessageType):
+def createMessageHeader(node: int, t: beMessageType) -> bytearray:
     if node > 255:
         raise Exception('beNodeNumerOutOfRange')
 
@@ -82,7 +82,7 @@ def parseMessage(m: bytearray) -> object:
     return jsonObject
 
 
-def createTemperatureMessage(node: int, timestamp: float, temperature: float):
+def createTemperatureMessage(node: int, timestamp: float, temperature: float) -> bytearray:
 
     m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_TEMPERATURE)
 
@@ -102,7 +102,7 @@ def createTemperatureMessage(node: int, timestamp: float, temperature: float):
     return m
 
 
-def createBubbleMessage(node: int, timestamp: float):
+def createBubbleMessage(node: int, timestamp: float) -> bytearray:
     m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_BUBBLE)
 
     dataObject = {'time': timestamp}
