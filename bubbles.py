@@ -5,7 +5,10 @@ import time
 from datetime import datetime
 import board as BOARD
 import RPi.GPIO as GPIO
-GPIO.setwarnings(True)
+
+# Use portable pin numbers
+GPIO.setmode(GPIO.BCM)  # "board" library uses this scheme
+GPIO.setwarnings(False)
 
 
 class BubbleDetector:
@@ -37,10 +40,8 @@ class BubbleDetector:
         self.channelList: list = None
 
     def setup(self):
-        # Use portable pin numbers
-        GPIO.setmode(GPIO.BCM)  # "board" library uses this scheme
 
-        print(self.portBubblesIn)
+        print("Opening bubbler input on port:{0}".format(self.portBubblesIn))
 
         self.channelList = [self.portBubblesIn]
 
@@ -55,7 +56,3 @@ class BubbleDetector:
 
     def teardown(self):
         GPIO.cleanup(self.channelList)
-
-
-
-
