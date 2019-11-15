@@ -3,31 +3,52 @@ from enum import IntEnum
 from datetime import datetime
 import json
 
-BE_MESSAGE_MAX_LEN = 60
+""" Brewer's Eye message format  utf-8
 
+   [0][1][2][3] .... data (json)  [59]
+     \  \  \  \
+      \  \  \  Message payload length (0-255)
+       \  \  Message Type
+        \  Node number (0-255)
+         '@' Message start identifier
+
+    JSON keys:
+        temp = temperature in Celcius, float
+        time = timestamp, local time in seconds past epoch
+
+"""
+
+BE_MESSAGE_MAX_LEN = 60
 BE_MESSAGE_HEADER = ord('@'.encode('utf-8'))
 
-TEMPERATURE_MSG = 1
-BUBBLESTAMP_MSG = 2
+
+class beMessageType(IntEnum):
+    BE_MSG_TYPE_TEMPERATURE = 0
+    BE_MSG_TYPE_BUBBLE = 1
 
 
 class beMessage(IntEnum):
     HEADER = 0
     NODE = 1
-    LENGTH = 2
-    MESSAGE = 3
+    TYPE = 2
+    LENGTH = 3
+    MESSAGE = 4
 
 
 def getCurrentTimestamp() -> float:
     return round(datetime.now().timestamp(), 3)
 
 
-def createMessageHeader(node: int):
+def createMessageHeader(node: int, t: beMessageType):
     if node > 255:
         raise Exception('beNodeNumerOutOfRange')
 
+    if t > 255:
+        raise Exception('beMessageTypeOutOfRange')
+
     m = bytearray([BE_MESSAGE_HEADER, ])
     m += bytes([node, ])
+    m += bytes([t.value, ])
 
     return m
 
@@ -44,12 +65,15 @@ def parseMessage(m: bytearray) -> object:
     #    print("[{0}]".format(i))
 
     node = m[beMessage.NODE.value]
+    messageType = m[beMessage.TYPE.value]
     messageLength = m[beMessage.LENGTH.value]
 
     if messageLength > BE_MESSAGE_MAX_LEN:
         raise Exception('beMessageDataLengthOverflow')
 
-    print("Node: {0} Length {1}".format(node, messageLength))
+    print("Node: {0}".format(node))
+    print("Type: [{0}]".format(beMessageType(messageType).name))
+    print("Length: {0}".format(messageLength))
 
     jsonMessage = m[beMessage.MESSAGE.value: beMessage.MESSAGE.value + messageLength + 1]
     jsonObject = json.loads(jsonMessage)
@@ -60,7 +84,7 @@ def parseMessage(m: bytearray) -> object:
 
 def createTemperatureMessage(node: int, timestamp: float, temperature: float):
 
-    m = createMessageHeader(node)
+    m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_TEMPERATURE)
 
     dataObject = {'temp': str(round(temperature, 3)), 'time': timestamp}
     data = json.dumps(dataObject)
@@ -78,20 +102,34 @@ def createTemperatureMessage(node: int, timestamp: float, temperature: float):
     return m
 
 
-def createBubbleMessage(node: int, t: float):
-    m = createMessageHeader(node)
+def createBubbleMessage(node: int, timestamp: float):
+    m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_BUBBLE)
 
-    temperatureString = str(round(t, 3))
-    m += temperatureString.encode('utf-8')
+    dataObject = {'time': timestamp}
+    data = json.dumps(dataObject)
+
+    # Next byte in the protocol is length of data payload
+    dataLength = len(data)
+    m += bytes([dataLength, ])
+
+    if dataLength + len(m) > BE_MESSAGE_MAX_LEN:
+        raise Exception('beTemperatureMessageTooBig')
+
+    # Payload data
+    m += data.encode('utf-8')
 
     return m
 
 
 myNode = 8
+
 temperature = float(34.23)
 m = createTemperatureMessage(myNode, getCurrentTimestamp(), temperature)
 print("Message:{0}".format(['0x' + str(i) for i in m]))
+parseMessage(m)
 
+m = createBubbleMessage(myNode, getCurrentTimestamp())
+print("Message:{0}".format(['0x' + str(i) for i in m]))
 parseMessage(m)
 
 
