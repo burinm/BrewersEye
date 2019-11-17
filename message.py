@@ -71,9 +71,9 @@ def parseMessage(m: bytearray) -> object:
     if messageLength > BE_MESSAGE_MAX_LEN:
         raise Exception('beMessageDataLengthOverflow')
 
-    print("Node: {0}".format(node))
-    print("Type: [{0}]".format(beMessageType(messageType).name))
-    print("Length: {0}".format(messageLength))
+    print("Node: {0} ".format(node), end='')
+    print("Type: [{0}] ".format(beMessageType(messageType).name), end='')
+    print("Length: {0} ".format(messageLength), end='')
 
     jsonMessage = m[beMessage.MESSAGE.value: beMessage.MESSAGE.value + messageLength + 1]
     jsonObject = json.loads(jsonMessage)
@@ -121,18 +121,22 @@ def createBubbleMessage(node: int, timestamp: float) -> bytearray:
     return m
 
 
+def printRawMessage(m: bytearray):
+    print("Message:{0}".format(['0x' + str(i) for i in m]))
+
+
+""" Test code
 myNode = 8
 
 temperature = float(34.23)
 m = createTemperatureMessage(myNode, getCurrentTimestamp(), temperature)
-print("Message:{0}".format(['0x' + str(i) for i in m]))
+printRawMessage(m)
 parseMessage(m)
 
 m = createBubbleMessage(myNode, getCurrentTimestamp())
-print("Message:{0}".format(['0x' + str(i) for i in m]))
+printRawMessage(m)
 parseMessage(m)
-
-
+"""
 
 
 """ Experiment, pickling vs json string

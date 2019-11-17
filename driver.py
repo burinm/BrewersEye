@@ -2,40 +2,83 @@
 
 import signal
 import time
+from queue import Queue
+from threading import Timer
 from bubbles import BubbleDetector
 from max31855 import TypeKReader
+from message import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage, parseMessage
 
 
-def sendBubbleMessage(count: int, timestamp: float):
-    print("![{0}]{1}".format(count, timestamp))
+def queueMessage(m: bytearray):
+    if globals.sendQ.full():  # More recent data take precedence
+        globals.sendQ.get(block=False)
+        print("!send queue full, removed item!")
+
+    try:
+        globals.sendQ.put(m, block=False, timeout=.250)
+    except globals.sendQ.Full:
+        print("Akk - send queue still full!")
+        pass
 
 
-class globals():
+def queueBubbleMessage(count: int, timestamp: float):
+    m = createBubbleMessage(globals.MY_NODE, timestamp)
+    print("[bubble:{0} {1}]".format(timestamp, count))
+    queueMessage(m)
+
+
+def queueTemperarureMessage(timestamp: float, temperature: float):
+    m = createTemperatureMessage(globals.MY_NODE, timestamp, temperature)
+    print("[temperature:{0} {1}]".format(timestamp, temperature))
+    queueMessage(m)
+
+
+def readTemperature():
+    tempC = globals.temperatureReader.getTemperatureC()
+    queueTemperarureMessage(getCurrentTimestamp(), tempC)
+    globals.temperatureTimer = Timer(2.0,  readTemperature)
+    globals.temperatureTimer.start()
+
+
+def publishMessage(m: bytearray):
+    parseMessage(m)
+    pass
+
+
+class globals:
+    MY_NODE = 88  # TODO, read this from environment
+    max_messages = 100
+    message_count = 0
+
     running = True
-    bubbleCounter = BubbleDetector(sendBubbleMessage)
+    bubbleCounter = BubbleDetector(queueBubbleMessage)
     temperatureReader = TypeKReader()
+    temperatureTimer: Timer = Timer(2.0,  readTemperature)
+    sendQ: Queue = Queue(max_messages)
 
 
 # Setup ctrl-C
 def ctrl_c(signum, frame):
     print("Deconfigure bubbler port:{0}".format(globals.bubbleCounter.portBubblesIn))
     globals.bubbleCounter.teardown()
+    globals.temperatureTimer.cancel()
     globals.running = False
 
 
 signal.signal(signal.SIGINT, ctrl_c)
 
 globals.bubbleCounter.setup()
+globals.temperatureTimer.start()
 
 # Loop until stopped
 while(globals.running):
-    # Template from here:
-    # https://learn.adafruit.com/thermocouple/python-circuitpython
-    tempC = globals.temperatureReader.getTemperatureC()
-    tempF = tempC * 9 / 5 + 32
-    print('Temperature: {} C {} F '.format(tempC, tempF))
-    time.sleep(2.0)
+    if (globals.sendQ.empty() is False):
+        try:
+            msg = globals.sendQ.get_nowait()
+            globals.sendQ.task_done()
+            publishMessage(msg)
+        except Queue.Empty:
+            print("Tried to read empty Q")
 
-    pass
 
 print("Exiting")
