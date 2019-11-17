@@ -1,5 +1,6 @@
 #!/usr/bin/env  python3
 
+import sys
 import signal
 import time
 from queue import Queue
@@ -7,6 +8,7 @@ from threading import Timer
 from bubbles import BubbleDetector
 from max31855 import TypeKReader
 from message import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage, parseMessage
+import serial
 
 
 def queueMessage(m: bytearray):
@@ -42,6 +44,7 @@ def readTemperature():
 
 def publishMessage(m: bytearray):
     parseMessage(m)
+    globals.xBee.write(m)
     pass
 
 
@@ -56,19 +59,36 @@ class globals:
     temperatureTimer: Timer = Timer(2.0,  readTemperature)
     sendQ: Queue = Queue(max_messages)
 
+    xBee = serial.Serial('/dev/ttyUSB0', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+
 
 # Setup ctrl-C
 def ctrl_c(signum, frame):
     print("Deconfigure bubbler port:{0}".format(globals.bubbleCounter.portBubblesIn))
     globals.bubbleCounter.teardown()
     globals.temperatureTimer.cancel()
+    globals.xBee.close()
     globals.running = False
 
 
 signal.signal(signal.SIGINT, ctrl_c)
 
+if globals.xBee.is_open:
+    try:
+        globals.xBee.close()
+    except serial.SerialException as e:
+        print(e)
+        sys.exit()
+
+try:
+    globals.xBee.open()
+except serial.SerialException as e:
+    print(e)
+    sys.exit()
+
 globals.bubbleCounter.setup()
 globals.temperatureTimer.start()
+
 
 # Loop until stopped
 while(globals.running):
