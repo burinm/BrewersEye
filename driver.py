@@ -6,9 +6,13 @@ from bubbles import BubbleDetector
 from max31855 import TypeKReader
 
 
+def sendBubbleMessage(count: int, timestamp: float):
+    print("![{0}]{1}".format(count, timestamp))
+
+
 class globals():
     running = True
-    bubbleCounter = BubbleDetector()
+    bubbleCounter = BubbleDetector(sendBubbleMessage)
     temperatureReader = TypeKReader()
 
 

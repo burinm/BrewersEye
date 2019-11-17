@@ -1,10 +1,11 @@
 #!/usr/bin/env  python3
 
 import threading
-import time
+from message import getCurrentTimestamp
 from datetime import datetime
 import board as BOARD
 import RPi.GPIO as GPIO
+from typing import Callable
 
 # Use portable pin numbers
 GPIO.setmode(GPIO.BCM)  # "board" library uses this scheme
@@ -15,6 +16,7 @@ class BubbleDetector:
 
     portBubblesIn: int = BOARD.D6.id
     bubbleCount: int = 0
+    bubbleEvent: Callable[[float], None] = None
 
     @staticmethod
     def bubbleCountDebounce():
@@ -25,9 +27,7 @@ class BubbleDetector:
         # See if signal is still low after 25 millisecond timer pop
         if (GPIO.input(BubbleDetector.portBubblesIn) == GPIO.LOW):
             BubbleDetector.bubbleCount += 1
-            print(time.time(), BubbleDetector.bubbleCount)
-            print(time.localtime())
-            print(round(datetime.now().timestamp(), 3))
+            BubbleDetector.bubbleEvent(BubbleDetector.bubbleCount, getCurrentTimestamp())
 
     @staticmethod
     def countBubblesCallback(channel):
@@ -36,8 +36,13 @@ class BubbleDetector:
         """
         threading.Timer(.025, BubbleDetector.bubbleCountDebounce).start()
 
-    def __init__(self):
+    def __init__(self, callback: Callable[[int, float], None]):
+        """ Takes a callback function that will return:
+                int - total count/index of bubble event since start
+                float - timestamp for event
+        """
         self.channelList: list = None
+        BubbleDetector.bubbleEvent = callback
 
     def setup(self):
 
