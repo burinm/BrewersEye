@@ -1,5 +1,5 @@
 #!/usr/bin/env  python3
-import message
+import MessageProtocol as beMessage
 from enum import Enum
 
 
@@ -30,7 +30,7 @@ class MessageStreamParser:
         # print("size of buffer is {0}".format(len(self.flags.payload_buffer)))
 
     def parseDataStream(self, b: bytes):
-        if b == message.BE_MESSAGE_HEADER:
+        if b == beMessage.BE_MESSAGE_HEADER:
             # print("Got Sync character")
             self.resetState()
             self.flags.synced = True
@@ -62,5 +62,5 @@ class MessageStreamParser:
                 self.flags.payload_index += 1
                 if self.flags.payload_index == self.flags.payload_length:
                     # print("Got message!")
-                    message.parseMessage(self.flags.payload_buffer)
+                    beMessage.parseMessage(self.flags.payload_buffer)
                     self.resetState()

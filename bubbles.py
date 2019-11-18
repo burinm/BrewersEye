@@ -1,7 +1,7 @@
 #!/usr/bin/env  python3
 
 import threading
-from message import getCurrentTimestamp
+from MessageProtocol import getCurrentTimestamp
 from datetime import datetime
 import board as BOARD
 import RPi.GPIO as GPIO

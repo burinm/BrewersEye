@@ -2,12 +2,11 @@
 
 import sys
 import signal
-import time
 from queue import Queue
 from threading import Timer
 from bubbles import BubbleDetector
 from max31855 import TypeKReader
-from message import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage, parseMessage
+from MessageProtocol import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage
 import serial
 
 
@@ -43,7 +42,7 @@ def readTemperature():
 
 
 def publishMessage(m: bytearray):
-    parseMessage(m)
+    parseMessage(m)  # Sanity check format
     globals.xBee.write(m)
     pass
 
