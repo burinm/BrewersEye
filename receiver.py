@@ -4,26 +4,28 @@ import sys
 from time import sleep
 import signal
 import serial
-from queue import Queue
 from CircularBuffer import CircularBuffer
+from MessageParser import MessageStreamParser
 
 
 class globals:
     MY_NODE = 'gateway'  # TODO, read this from environment
     running = True
 
-    # TODO, make this a ring buffer
-    queue_buffer_max = 2500
+    # Try to read n bytes from serial port, then unblock
+    NUM_BYTES_TO_READ: int = 10
+
+    # Ring buffer for incoming data stream
     rxBuffer: CircularBuffer = CircularBuffer()
 
     xBee = serial.Serial('/dev/ttyUSB0', baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1)
+    msgParser: MessageStreamParser = MessageStreamParser()
 
 
 # Setup ctrl-C
 def ctrl_c(signum, frame):
     print("Stopping Gateway")
     globals.running = False
-    globals.xBee.close()
 
 
 signal.signal(signal.SIGINT, ctrl_c)
@@ -45,8 +47,8 @@ except serial.SerialException as e:
 # Loop until stopped
 while(globals.running):
     if globals.xBee.is_open:
-        bytes: bytearray = globals.xBee.read(100)
-        print("[got {0} bytes]".format(len(bytes)), end='')
+        bytes: bytearray = globals.xBee.read(globals.NUM_BYTES_TO_READ)
+        # print("[got {0} bytes]".format(len(bytes)), end='')
         for i in bytes:
             globals.rxBuffer.put(i)
     else:
@@ -59,11 +61,13 @@ while(globals.running):
     while(globals.rxBuffer.has_items()):
         [result, item] = globals.rxBuffer.get()
         if result is True:
-            print("[{0}]".format(hex(item)), end='')
+            # print("[{0}]".format(hex(item)), end='')
+            globals.msgParser.parseDataStream(item)
         else:
             print("Couldn't read in buffer!")
-        
+
     print(".", flush=True, end='')
 
 
+globals.xBee.close()
 print("Exiting")

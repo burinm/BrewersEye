@@ -55,6 +55,7 @@ def createMessageHeader(node: int, t: beMessageType) -> bytearray:
 
 def parseMessage(m: bytearray) -> object:
     if len(m) > BE_MESSAGE_MAX_LEN:
+        print("raw message length = {0}".format(len(m)))
         raise Exception('beMessageIncorrectFormat')
 
     if m[beMessage.HEADER.value] != BE_MESSAGE_HEADER:

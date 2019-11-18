@@ -64,11 +64,10 @@ class globals:
 
 # Setup ctrl-C
 def ctrl_c(signum, frame):
+    globals.running = False
     print("Deconfigure bubbler port:{0}".format(globals.bubbleCounter.portBubblesIn))
     globals.bubbleCounter.teardown()
     globals.temperatureTimer.cancel()
-    globals.xBee.close()
-    globals.running = False
 
 
 signal.signal(signal.SIGINT, ctrl_c)
@@ -101,4 +100,5 @@ while(globals.running):
             print("Tried to read empty Q")
 
 
+globals.xBee.close()
 print("Exiting")
