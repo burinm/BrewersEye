@@ -1,7 +1,13 @@
 #!/usr/bin/env  python3
+""" max31855.py - Code to read the type-k SPI peripheral
 
-""" Template from here:
-    https://learn.adafruit.com/thermocouple/python-circuitpython
+    Template from here:
+        https://learn.adafruit.com/thermocouple/python-circuitpython
+
+    TODO:
+    This code probably needs some error checking!
+    We are always assuming max31855.temperature
+    returns a sane value.
 """
 
 import board

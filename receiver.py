@@ -1,4 +1,14 @@
 #!/usr/bin/env  python3
+""" receiver.py - A Brewer's Eye gateway
+    burin (c) 2019
+
+    Responsoble from receiving messages from remote
+    Zigbee nodes, repackaging and forwarding to
+    remote web services
+
+    *Note* - currently, if multiple nodes send
+    messages at the same time, this code will blow up!
+"""
 
 import sys
 from time import sleep
@@ -18,7 +28,13 @@ class globals:
     # Ring buffer for incoming data stream
     rxBuffer: CircularBuffer = CircularBuffer()
 
-    xBee = serial.Serial('/dev/ttyUSB0', baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1)
+    # Sets up serial port. Xbee is in Transparent Mode
+    xBee = serial.Serial('/dev/ttyUSB0',
+                         baudrate=115200,
+                         bytesize=8,
+                         parity='N',
+                         stopbits=1,
+                         timeout=1)
     msgParser: MessageStreamParser = MessageStreamParser()
 
 
@@ -51,7 +67,7 @@ while(globals.running):
         # print("[got {0} bytes]".format(len(bytes)), end='')
         for i in bytes:
             globals.rxBuffer.put(i)
-    else:
+    else:  # This branch has never been tried...
         sleep(2.0)
         try:
             globals.xBee.open()

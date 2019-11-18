@@ -1,4 +1,8 @@
 #!/usr/bin/env  python3
+""" MessageProtocol.py - Custom, compact protocol for brewer's eye messages
+    burin (c) 2019
+"""
+
 from enum import IntEnum
 from datetime import datetime
 import json
@@ -16,6 +20,17 @@ import json
         temp = temperature in Celcius, float
         time = timestamp, local time in seconds past epoch
 
+    The idea here is to semi-compact remote node messages
+    so that they could theoretically fit into one Zigbee
+    packet. At the moment I think the serial driver just
+    sends one character per packet (Don't know... TBD)
+
+    The current convention for the JSON part is to keep
+    key names 4 characters or shorter. I chose to
+    JSONize the data portion because it's easier than
+    writing a parser for every different kind of payload.
+    The tradeoff being that it's easy to code/debug,
+    but not super compact.
 """
 
 BE_MESSAGE_MAX_LEN = 60

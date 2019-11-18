@@ -1,8 +1,40 @@
 #!/usr/bin/env  python3
+""" bubbles.py - Count bubbles from a custom infrared sensor
+        burin (c) 2019
+
+    Currently the sensor is active low when it detects a bubble.
+    An interrupt on low fires a timer 25 milli-seconds later. If
+    the pin is still low, we count it as a bubble
+
+    Input from the sensor is sent through an op-amp chain that:
+        0) Takes the signal's derivative (DC blocking capacitor)
+        1) High pass (.72Hz)
+        2) Low pass (3.4Hz) and gain x101
+        3) High pass (.72Hz)
+        4) Low pass (3.4Hz) and gain x101
+        5) Buffer stage
+        6) Invert with BJT
+
+    Gain = 1 + (R2/R1)
+        R2 = 470K, R1 = 4.7K, gain = 101
+
+    High pass
+        f Hz (cutoff) = 1 / (2Pi * R * C)
+        R = 47K, C = 4.7uF, f(cuttoff) = .72Hz  (1.4 seconds)
+
+    Low Pass
+        f Hz (cutoff) = 1 / (2Pi * R * C)
+        R = 470K, C q 100 nF, f(cutoff) = 3.4Hz (.295 seconds)
+
+    This means (in thoery) that any change in LED intensity
+    that isn't at least .295 seconds long, and isn't longer
+    than 1.4 seconds shouldn't even make it into the GPIO pin
+
+
+"""
 
 import threading
 from MessageProtocol import getCurrentTimestamp
-from datetime import datetime
 import board as BOARD
 import RPi.GPIO as GPIO
 from typing import Callable
