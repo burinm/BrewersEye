@@ -2,12 +2,16 @@
 
 import sys
 import signal
+from enum import IntEnum
 from queue import Queue
 from threading import Timer
 from bubbles import BubbleDetector
 from max31855 import TypeKReader
 from MessageProtocol import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage
 import serial
+import max31820
+# https://docs.python.org/2/library/functools.html
+from functools import partial
 
 
 def queueMessage(m: bytearray):
@@ -35,8 +39,21 @@ def queueTemperarureMessage(timestamp: float, temperature: float):
 
 
 def readTemperature():
-    tempC = globals.temperatureReader.getTemperatureC()
-    queueTemperarureMessage(getCurrentTimestamp(), tempC)
+    if globals.temperatureState == readState.TYPE_K:
+        tempC = globals.temperatureReaderTypeK.getTemperatureC()
+        print("Read type-k:{0}".format(tempC))
+        queueTemperarureMessage(getCurrentTimestamp(), tempC)
+    elif globals.temperatureState == readState.INSIDE:
+        tempC = globals.temperatureReaderInside()
+        print("Read inside:{0}".format(tempC))
+    elif globals.temperatureState == readState.OUTSIDE:
+        tempC = globals.temperatureReaderOutside()
+        print("Read outside:{0}".format(tempC))
+
+    globals.temperatureState += 1
+    if globals.temperatureState == readState.LAST:
+        globals.temperatureState = readState.TYPE_K
+
     globals.temperatureTimer = Timer(2.0,  readTemperature)
     globals.temperatureTimer.start()
 
@@ -47,6 +64,12 @@ def publishMessage(m: bytearray):
     pass
 
 
+class readState(IntEnum):
+    TYPE_K = 0
+    INSIDE = 1
+    OUTSIDE = 2
+    LAST = 3
+
 class globals:
     MY_NODE = 88  # TODO, read this from environment
     max_messages = 100
@@ -54,8 +77,11 @@ class globals:
 
     running = True
     bubbleCounter = BubbleDetector(queueBubbleMessage)
-    temperatureReader = TypeKReader()
+    temperatureReaderTypeK = TypeKReader()
+    temperatureReaderInside = partial(max31820.getTempC, 'inside')
+    temperatureReaderOutside = partial(max31820.getTempC, 'outside')
     temperatureTimer: Timer = Timer(2.0,  readTemperature)
+    temperatureState: int = readState.TYPE_K
     sendQ: Queue = Queue(max_messages)
 
     xBee = serial.Serial('/dev/ttyUSB0', baudrate=115200, bytesize=8, parity='N', stopbits=1)
@@ -97,6 +123,9 @@ while(globals.running):
             publishMessage(msg)
         except Queue.Empty:
             print("Tried to read empty Q")
+
+    # print(max31820.getTempC('inside'))
+    # print(max31820.getTempC('outside'))
 
 
 globals.xBee.close()
