@@ -48,7 +48,7 @@ class BubbleDetector:
 
     portBubblesIn: int = BOARD.D6.id
     bubbleCount: int = 0
-    bubbleEvent: Callable[[float], None] = None
+    bubbleEvent: Callable[[None], None] = None
 
     @staticmethod
     def bubbleCountDebounce():
@@ -59,7 +59,7 @@ class BubbleDetector:
         # See if signal is still low after 25 millisecond timer pop
         if (GPIO.input(BubbleDetector.portBubblesIn) == GPIO.LOW):
             BubbleDetector.bubbleCount += 1
-            BubbleDetector.bubbleEvent(BubbleDetector.bubbleCount, getCurrentTimestamp())
+            BubbleDetector.bubbleEvent()
 
     @staticmethod
     def countBubblesCallback(channel):

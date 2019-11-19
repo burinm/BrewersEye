@@ -122,10 +122,10 @@ def createTemperatureMessage(node: int, timestamp: float, temperature: float) ->
     return m
 
 
-def createBubbleMessage(node: int, timestamp: float) -> bytearray:
+def createBubbleMessage(node: int, timestamp: float, count: int) -> bytearray:
     m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_BUBBLE)
 
-    dataObject = {'time': timestamp}
+    dataObject = {'time': timestamp, 'avg': count}
     data = json.dumps(dataObject)
 
     # Next byte in the protocol is length of data payload
