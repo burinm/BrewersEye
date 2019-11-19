@@ -14,6 +14,7 @@ import max31820
 from functools import partial
 from datetime import datetime
 
+
 class sensorsState:
     temp1: int = None
     temp2: int = None
@@ -21,8 +22,15 @@ class sensorsState:
     bubbles: int = 0
 
 
+class readState(IntEnum):
+    TYPE_K = 0
+    INSIDE = 1
+    OUTSIDE = 2
+    LAST = 3
+
+
 def countBubbles():
-    print('[b]', end = '')
+    print('[b]', end='')
     globals.sensors.bubbles += 1
 
 
@@ -44,8 +52,11 @@ def queueBubbleMessage(timestamp: float, count: int):
     queueMessage(m)
 
 
-def queueTemperarureMessage(timestamp: float, temperature: float):
-    m = createTemperatureMessage(globals.MY_NODE, timestamp, temperature)
+def queueTemperarureMessage(index: int, timestamp: float, temperature: float):
+    m = createTemperatureMessage(index,
+                                 globals.MY_NODE,
+                                 timestamp,
+                                 temperature)
     print("[temperature:{0} {1}]".format(timestamp, temperature))
     queueMessage(m)
 
@@ -62,7 +73,7 @@ def readTemperature():
         print("Read inside:{0}".format(tempC))
     elif globals.temperatureState == readState.OUTSIDE:
         tempC = globals.temperatureReaderOutside()
-        globals.sensors.temp2 = tempC
+        globals.sensors.temp3 = tempC
         print("Read outside:{0}".format(tempC))
 
     globals.temperatureState += 1
@@ -78,13 +89,6 @@ def publishMessage(m: bytearray):
     parseMessage(m)  # Sanity check format
     globals.xBee.write(m)
     pass
-
-
-class readState(IntEnum):
-    TYPE_K = 0
-    INSIDE = 1
-    OUTSIDE = 2
-    LAST = 3
 
 
 class globals:
@@ -162,9 +166,25 @@ while(globals.running):
         bubble_count = globals.sensors.bubbles
         globals.sensors.bubbles = 0
 
+        # TODO - Current time really isn't correct,
+        #        timestamp should be recorded when
+        #        sensor is read
+        t_stamp = getCurrentTimestamp()
+
         if globals.sensors.temp1 is not None:
-            queueTemperarureMessage(getCurrentTimestamp(),
+            queueTemperarureMessage(readState.TYPE_K.value,
+                                    t_stamp,
                                     globals.sensors.temp1)
+
+        if globals.sensors.temp2 is not None:
+            queueTemperarureMessage(readState.INSIDE.value,
+                                    t_stamp,
+                                    globals.sensors.temp2)
+
+        if globals.sensors.temp3 is not None:
+            queueTemperarureMessage(readState.OUTSIDE.value,
+                                    t_stamp,
+                                    globals.sensors.temp3)
 
         if globals.sensors.bubbles is not None:
             timediff = timing - nextSend + NEXT_M

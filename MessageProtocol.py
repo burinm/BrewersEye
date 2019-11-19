@@ -68,6 +68,22 @@ def createMessageHeader(node: int, t: beMessageType) -> bytearray:
     return m
 
 
+def createMessageFooter(m: bytearray, o: object):
+    data = json.dumps(o)
+
+    # Next byte in the protocol is length of data payload
+    dataLength = len(data)
+    m += bytes([dataLength, ])
+
+    if dataLength + len(m) > BE_MESSAGE_MAX_LEN:
+        raise Exception('beTemperatureMessageTooBig')
+
+    # Payload data
+    m += data.encode('utf-8')
+
+    return m
+
+
 def parseMessage(m: bytearray) -> object:
     if len(m) > BE_MESSAGE_MAX_LEN:
         print("raw message length = {0}".format(len(m)))
@@ -102,43 +118,25 @@ def parseMessage(m: bytearray) -> object:
     return jsonMessage
 
 
-def createTemperatureMessage(node: int, timestamp: float, temperature: float) -> bytearray:
+def createTemperatureMessage(index: int,  # Which temperarture sensor
+                             node: int,
+                             timestamp: float,
+                             temperature: float) -> bytearray:
 
     m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_TEMPERATURE)
 
-    dataObject = {'temp': str(round(temperature, 3)), 'time': timestamp}
-    data = json.dumps(dataObject)
+    dataObject = {'idx': index,
+                  'temp': str(round(temperature, 3)),
+                  'time': timestamp}
 
-    # Next byte in the protocol is length of data payload
-    dataLength = len(data)
-    m += bytes([dataLength, ])
-
-    if dataLength + len(m) > BE_MESSAGE_MAX_LEN:
-        raise Exception('beTemperatureMessageTooBig')
-
-    # Payload data
-    m += data.encode('utf-8')
-
-    return m
+    return (createMessageFooter(m, dataObject))
 
 
 def createBubbleMessage(node: int, timestamp: float, count: int) -> bytearray:
     m = createMessageHeader(node, beMessageType.BE_MSG_TYPE_BUBBLE)
 
     dataObject = {'time': timestamp, 'avg': count}
-    data = json.dumps(dataObject)
-
-    # Next byte in the protocol is length of data payload
-    dataLength = len(data)
-    m += bytes([dataLength, ])
-
-    if dataLength + len(m) > BE_MESSAGE_MAX_LEN:
-        raise Exception('beTemperatureMessageTooBig')
-
-    # Payload data
-    m += data.encode('utf-8')
-
-    return m
+    return (createMessageFooter(m, dataObject))
 
 
 def printRawMessage(m: bytearray):
