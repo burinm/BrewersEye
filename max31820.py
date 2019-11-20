@@ -33,7 +33,9 @@ This is not + -->  |+      |
 """ Driver/code taken verbatim from:
 #    https://learn.adafruit.com/adafruits-raspberry-pi-lesson-11-ds18b20-temperature-sensing
 
-    modified by burin (c) 2019 - table of devices
+    modified by burin (c) 2019
+        - table of devices
+        - exception handling on open errors
 """
 
 
@@ -51,16 +53,26 @@ device_file_2 = device_2 + '/w1_slave'
 
 device_table = {'inside': device_file_1, 'outside': device_file_2}
 
+ERROR = True
+OK = False
+
 
 def read_temp_raw(device_file):
-    f = open(device_file, 'r')
-    lines = f.readlines()
-    f.close()
-    return lines
+    try:
+        f = open(device_file, 'r')
+        lines = f.readlines()
+    except FileNotFoundError:
+        return [ERROR, None]
+    else:
+        f.close()
+        return [OK, lines]
 
 
 def read_temp(device):
-    lines = read_temp_raw(device_table[device])
+    [error, lines] = read_temp_raw(device_table[device])
+    if error:
+        return [ERROR, None, None]
+
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
         lines = read_temp_raw()
@@ -69,12 +81,12 @@ def read_temp(device):
         temp_string = lines[1][equals_pos+2:]
         temp_c = float(temp_string) / 1000.0
         temp_f = temp_c * 9.0 / 5.0 + 32.0
-        return temp_c, temp_f
+        return [OK, temp_c, temp_f]
 
 
 def getTempC(device):
-    [c, f] = read_temp(device)
-    return c
+    error, c, f = read_temp(device)
+    return [error, c]
 
 
 """ test

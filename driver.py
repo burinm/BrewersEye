@@ -64,17 +64,26 @@ def queueTemperarureMessage(index: int, timestamp: float, temperature: float):
 # Loop through sensors each timer pop
 def readTemperature():
     if globals.temperatureState == readState.TYPE_K:
-        tempC = globals.temperatureReaderTypeK.getTemperatureC()
-        print("Read type-k:{0}".format(tempC))
-        globals.sensors.temp1 = tempC
+        [error, tempC] = globals.temperatureReaderTypeK.getTemperatureC()
+        if error:
+            print("Failed to read Type-k temperature sensor")
+        else:
+            print("Read type-k:{0}".format(tempC))
+            globals.sensors.temp1 = tempC
     elif globals.temperatureState == readState.INSIDE:
-        tempC = globals.temperatureReaderInside()
-        globals.sensors.temp2 = tempC
-        print("Read inside:{0}".format(tempC))
+        [error, tempC] = globals.temperatureReaderInside()
+        if error:
+            print("Failed to read inside temperature sensor")
+        else:
+            globals.sensors.temp2 = tempC
+            print("Read inside:{0}".format(tempC))
     elif globals.temperatureState == readState.OUTSIDE:
-        tempC = globals.temperatureReaderOutside()
-        globals.sensors.temp3 = tempC
-        print("Read outside:{0}".format(tempC))
+        [error, tempC] = globals.temperatureReaderOutside()
+        if error:
+            print("Failed to read outside temperature sensor")
+        else:
+            globals.sensors.temp3 = tempC
+            print("Read outside:{0}".format(tempC))
 
     globals.temperatureState += 1
     if globals.temperatureState == readState.LAST:

@@ -15,6 +15,9 @@ import busio
 import digitalio
 import adafruit_max31855
 
+ERROR = True
+OK = False
+
 
 class TypeKReader:
     SCK = board.SCK  # 11
@@ -30,8 +33,11 @@ class TypeKReader:
         pass  # TODO?
 
     def getTemperatureC(self):
-        return self.max31855.temperature
-
+        try:
+            return [OK, self.max31855.temperature]
+        except RuntimeError as e:
+            print("Type-k read failed:{0}".format(e))
+            return [ERROR, None]
 
 """ Test
 import time
