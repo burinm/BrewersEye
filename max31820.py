@@ -74,8 +74,9 @@ def read_temp(device):
         return [ERROR, None, None]
 
     while lines[0].strip()[-3:] != 'YES':
-        time.sleep(0.2)
-        lines = read_temp_raw()
+        time.sleep(0.2)  # TODO - this is blocking
+        [error, lines] = read_temp_raw(device_table[device])
+        # TODO handle error
     equals_pos = lines[1].find('t=')
     if equals_pos != -1:
         temp_string = lines[1][equals_pos+2:]
