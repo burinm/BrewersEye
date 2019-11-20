@@ -16,9 +16,9 @@ from datetime import datetime
 
 
 class sensorsState:
-    temp1: int = None
-    temp2: int = None
-    temp3: int = None
+    temp1: float = None
+    temp2: float = None
+    temp3: float = None
     bubbles: int = 0
 
 
@@ -155,6 +155,7 @@ while(globals.running):
         except Queue.Empty:
             print("Tried to read empty Q")
 
+    # Periodically poll saved sensor values and queue messages
     timing = datetime.now().timestamp()
     if (timing > nextSend):
         """ TODO -
@@ -166,9 +167,10 @@ while(globals.running):
         bubble_count = globals.sensors.bubbles
         globals.sensors.bubbles = 0
 
-        # TODO - Current time really isn't correct,
-        #        timestamp should be recorded when
-        #        sensor is read
+        """ TODO - Current time really isn't correct,
+                timestamp should be recorded when
+                sensor is read
+        """
         t_stamp = getCurrentTimestamp()
 
         if globals.sensors.temp1 is not None:
