@@ -3,6 +3,7 @@
     burin (c) 2019
 """
 import MessageProtocol as beMessage
+from typing import Callable
 from enum import Enum
 
 
@@ -26,8 +27,9 @@ class msg_flags:
 
 class MessageStreamParser:
 
-    def __init__(self):
+    def __init__(self, callback: Callable[[object], None]):
         self.flags = msg_flags()
+        self.messageComplete = callback
 
     # Start over: either reset, finished or error
     def resetState(self):
@@ -69,5 +71,6 @@ class MessageStreamParser:
                 self.flags.payload_index += 1
                 if self.flags.payload_index == self.flags.payload_length:
                     # print("Got message!")
-                    beMessage.parseMessage(self.flags.payload_buffer)
+                    o = beMessage.parseMessage(self.flags.payload_buffer)
                     self.resetState()
+                    self.messageComplete(o)

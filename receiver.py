@@ -12,10 +12,41 @@
 
 import sys
 from time import sleep
+from datetime import datetime
 import signal
 import serial
 from CircularBuffer import CircularBuffer
 from MessageParser import MessageStreamParser
+from MessageProtocol import beMessageType
+import thingspeak
+
+
+class sensorData:
+    type_k: float = None
+    inside: float = None
+    outside: float = None
+    bubbles: int = None
+
+
+def recieveMessageCallback(o: object) -> None:
+    print("-->{0}".format(o))
+    if 'type' in o:
+        payload = o['data']
+
+        # Fill in the latest date we have, overwrite current
+        if o['type'] == beMessageType.BE_MSG_TYPE_TEMPERATURE.value:
+            print("Processing temperature message")
+            if payload['idx'] == 0:
+                globals.currentData.type_k = float(payload['temp'])
+            elif payload['idx'] == 1:
+                globals.currentData.inside = float(payload['temp'])
+            elif payload['idx'] == 2:
+                globals.currentData.outside = float(payload['temp'])
+            elif payload['idx'] == 3:
+                globals.currentData.outside = payload['temp']
+        elif o['type'] == beMessageType.BE_MSG_TYPE_BUBBLE.value:
+            print("Processing bubble message")
+            globals.currentData.bubbles = payload['avg']
 
 
 class globals:
@@ -35,7 +66,10 @@ class globals:
                          parity='N',
                          stopbits=1,
                          timeout=1)
-    msgParser: MessageStreamParser = MessageStreamParser()
+
+    msgParser: MessageStreamParser = MessageStreamParser(recieveMessageCallback)
+
+    currentData: sensorData = sensorData()
 
 
 # Setup ctrl-C
@@ -58,6 +92,10 @@ try:
 except serial.SerialException as e:
     print(e)
     sys.exit()
+
+timing = datetime.now().timestamp()
+# Send first thingspeak updatemessage 15 seconds from now
+nextThingspeakUpdate = timing + 15.0
 
 
 # Loop until stopped
@@ -84,6 +122,20 @@ while(globals.running):
 
     print(".", flush=True, end='')
 
+    timing = datetime.now().timestamp()
+    if (timing > nextThingspeakUpdate):
+        if globals.currentData.type_k is not None and \
+           globals.currentData.inside is not None and \
+           globals.currentData.outside is not None and \
+           globals.currentData.bubbles is not None:
+            thingspeak.updateChannel(globals.currentData.type_k,
+                                     globals.currentData.inside,
+                                     globals.currentData.outside,
+                                     globals.currentData.bubbles)
 
+            nextThingspeakUpdate = timing + 15.0
+
+
+# Exit
 globals.xBee.close()
 print("Exiting")
