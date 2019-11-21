@@ -23,10 +23,9 @@ class sensorsState:
 
 
 class readState(IntEnum):
-    TYPE_K = 0
-    INSIDE = 1
-    OUTSIDE = 2
-    LAST = 3
+    INSIDE = 0
+    OUTSIDE = 1
+    LAST = 2
 
 
 def countBubbles():
@@ -63,14 +62,7 @@ def queueTemperarureMessage(index: int, timestamp: float, temperature: float):
 
 # Loop through sensors each timer pop
 def readTemperature():
-    if globals.temperatureState == readState.TYPE_K:
-        [error, tempC] = globals.temperatureReaderTypeK.getTemperatureC()
-        if error:
-            print("Failed to read Type-k temperature sensor")
-        else:
-            print("Read type-k:{0}".format(tempC))
-            globals.sensors.temp1 = tempC
-    elif globals.temperatureState == readState.INSIDE:
+    if globals.temperatureState == readState.INSIDE:
         [error, tempC] = globals.temperatureReaderInside()
         if error:
             print("Failed to read inside temperature sensor")
@@ -87,7 +79,7 @@ def readTemperature():
 
     globals.temperatureState += 1
     if globals.temperatureState == readState.LAST:
-        globals.temperatureState = readState.TYPE_K
+        globals.temperatureState = readState.INSIDE
 
     if (globals.running):
         globals.temperatureTimer = Timer(2.0,  readTemperature)
@@ -116,7 +108,7 @@ class globals:
 
     # Sensor read timer
     temperatureTimer: Timer = Timer(2.0,  readTemperature)
-    temperatureState: int = readState.TYPE_K
+    temperatureState: int = readState.INSIDE
 
     # Queue for outgoing messages
     sendQ: Queue = Queue(max_messages)
