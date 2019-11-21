@@ -22,7 +22,6 @@ import thingspeak
 
 
 class sensorData:
-    type_k: float = None
     inside: float = None
     outside: float = None
     bubbles: int = None
@@ -37,13 +36,9 @@ def recieveMessageCallback(o: object) -> None:
         if o['type'] == beMessageType.BE_MSG_TYPE_TEMPERATURE.value:
             print("Processing temperature message")
             if payload['idx'] == 0:
-                globals.currentData.type_k = float(payload['temp'])
-            elif payload['idx'] == 1:
                 globals.currentData.inside = float(payload['temp'])
-            elif payload['idx'] == 2:
+            elif payload['idx'] == 1:
                 globals.currentData.outside = float(payload['temp'])
-            elif payload['idx'] == 3:
-                globals.currentData.outside = payload['temp']
         elif o['type'] == beMessageType.BE_MSG_TYPE_BUBBLE.value:
             print("Processing bubble message")
             globals.currentData.bubbles = payload['avg']
@@ -124,16 +119,15 @@ while(globals.running):
 
     timing = datetime.now().timestamp()
     if (timing > nextThingspeakUpdate):
-        if globals.currentData.type_k is not None and \
-           globals.currentData.inside is not None and \
+        if globals.currentData.inside is not None and \
            globals.currentData.outside is not None and \
            globals.currentData.bubbles is not None:
-            thingspeak.updateChannel(globals.currentData.type_k,
-                                     globals.currentData.inside,
+            thingspeak.updateChannel(globals.currentData.inside,
                                      globals.currentData.outside,
                                      globals.currentData.bubbles)
 
-            nextThingspeakUpdate = timing + 15.0
+            # 30 second updates
+            nextThingspeakUpdate = timing + 30.0
 
 
 # Exit

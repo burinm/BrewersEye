@@ -34,21 +34,18 @@ topic = "channels/" + channelID + "/publish/" + writeAPIKey
 clientID = 'deadbeefSuperPro'
 
 
-def updateChannel(type_k: float,
-                  inside: float,
+def updateChannel(inside: float,
                   outside: float,
                   bubbles: int):
 
-    temperature1 = "{:.2f}".format(type_k)
-    temperature2 = "{:.2f}".format(inside)
-    temperature3 = "{:.2f}".format(outside)
+    temperature1 = "{:.2f}".format(inside)
+    temperature2 = "{:.2f}".format(outside)
     bubbles_field = str(bubbles)
 
     # build the payload string.
     payload = "field1=" + temperature1 + \
               "&field2=" + temperature2 + \
-              "&field3=" + temperature3 + \
-              "&field4=" + bubbles_field
+              "&field3=" + bubbles_field
 
     print("Sending to ThingSpeak: " + payload)
 
