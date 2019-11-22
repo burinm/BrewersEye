@@ -126,6 +126,11 @@ while(globals.running):
                                      globals.currentData.outside,
                                      globals.currentData.bubbles)
 
+            # For now, clear memory - TODO (better way?, average?)
+            globals.currentData.inside = None
+            globals.currentData.outside = None
+            globals.currentData.bubbles = None
+
             # 30 second updates
             nextThingspeakUpdate = timing + 30.0
 
