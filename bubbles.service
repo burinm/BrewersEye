@@ -1,0 +1,16 @@
+[Unit]
+Description=Brewer's Eye Fermentation Monitor
+Documentation=https://github.com/burinm/BrewersEye
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/burin/BrewersEye/driver.py
+Restart=always
+RestartSec=5
+RestartPreventExitStatus=255
+Type=simple
+User=burin
+
+[Install]
+WantedBy=multi-user.target
+Alias=bubbles.service

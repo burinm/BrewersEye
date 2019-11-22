@@ -1,0 +1,12 @@
+Help here:
+https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6
+
+I copied the sshd.service, then modified
+
+cp bubbles.service -> /lib/systemd/system/
+    -rw-r--r-- 1 root root 336 Nov 21 21:14 /lib/systemd/system/bubbles.service
+
+systemctl enable bubbles
+
+systemctl start bubbles
+systemctl stop bubbles
