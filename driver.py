@@ -29,8 +29,8 @@ class readState(IntEnum):
 
 
 def countBubbles():
-    print('[b]', end='')
     globals.sensors.bubbles += 1
+    print('(b)', end='')
 
 
 def queueMessage(m: bytearray):

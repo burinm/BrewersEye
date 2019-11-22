@@ -34,7 +34,6 @@
 """
 
 import threading
-from MessageProtocol import getCurrentTimestamp
 import board as BOARD
 import RPi.GPIO as GPIO
 from typing import Callable
@@ -50,23 +49,28 @@ class BubbleDetector:
     bubbleCount: int = 0
     bubbleEvent: Callable[[None], None] = None
 
+    """ Not using, events seem to be faster than this
+
+    Really cheap debounce. The signal could
+    conceivably have gone high and low again
+
     @staticmethod
     def bubbleCountDebounce():
-        """ Really cheap debounce. The signal could
-            conceivably have gone high and low again
-        """
 
         # See if signal is still low after 25 millisecond timer pop
         if (GPIO.input(BubbleDetector.portBubblesIn) == GPIO.LOW):
             BubbleDetector.bubbleCount += 1
             BubbleDetector.bubbleEvent()
+    """
 
     @staticmethod
     def countBubblesCallback(channel):
-        """ Supposedly the GPIO library queues up edge events,
-            so start a callback for each
+        """ Supposedly the GPIO library queues up edge events
         """
-        threading.Timer(.025, BubbleDetector.bubbleCountDebounce).start()
+        BubbleDetector.bubbleCount += 1
+        BubbleDetector.bubbleEvent()
+
+        # Not using: threading.Timer(.010, BubbleDetector.bubbleCountDebounce).start()
 
     def __init__(self, callback: Callable[[int, float], None]):
         """ Takes a callback function that will return:
