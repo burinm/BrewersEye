@@ -20,6 +20,20 @@ from MessageParser import MessageStreamParser
 from MessageProtocol import beMessageType
 import thingspeak
 
+from db import db_add_sensor1_entry, db_add_sensor2_entry, db_add_bubbles_entry
+
+
+# TODO - add back milliseconds?
+def to_mysql_date(seconds: float):
+    # MySQL documentation - TIMESTATMP is 'YYYY-MM-DD hh:mm:ss[.fraction]'
+    # https://dev.mysql.com/doc/refman/8.0/en/datetime.html
+    # https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+    #
+    # Converting:
+    # https://www.programiz.com/python-programming/datetime/timestamp-datetime
+    dt = datetime.fromtimestamp(int(seconds))
+    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
+
 
 class sensorData:
     inside: float = None
@@ -37,11 +51,18 @@ def recieveMessageCallback(o: object) -> None:
             print("Processing temperature message")
             if payload['idx'] == 0:
                 globals.currentData.inside = float(payload['temp'])
+                db_add_sensor1_entry(float(payload['temp']), to_mysql_date(payload['time']))
             elif payload['idx'] == 1:
                 globals.currentData.outside = float(payload['temp'])
+                db_add_sensor2_entry(float(payload['temp']), to_mysql_date(payload['time']))
         elif o['type'] == beMessageType.BE_MSG_TYPE_BUBBLE.value:
             print("Processing bubble message")
             globals.currentData.bubbles = payload['avg']
+            bubble_avg = int(payload['avg'])
+
+            # Only add bubbles to database if something happened
+            if (bubble_avg > 0):
+                db_add_bubbles_entry(bubble_avg, to_mysql_date(payload['time']))
 
 
 class globals:
