@@ -73,4 +73,5 @@ class MessageStreamParser:
                     # print("Got message!")
                     o = beMessage.parseMessage(self.flags.payload_buffer)
                     self.resetState()
-                    self.messageComplete(o)
+                    if o is not None:
+                        self.messageComplete(o)

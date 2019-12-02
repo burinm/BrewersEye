@@ -108,8 +108,16 @@ def parseMessage(m: bytearray) -> object:
     print("Length: {0} ".format(messageLength), end='')
 
     data = m[beMessage.MESSAGE.value: beMessage.MESSAGE.value + messageLength + 1]
-    jsonData = json.loads(data)
-    print(jsonData)
+    if data is None:
+        print("Error Parsing Message payload!!")
+        return None
+
+    try:
+        jsonData = json.loads(data)
+        print(jsonData)
+    except json.JSONDecodeError:
+        print("Error Parsing Message payload [{0}]".format(data))
+        return None
 
     jsonMessage = {'node': node,
                    'type': beMessageType(messageType).value,
