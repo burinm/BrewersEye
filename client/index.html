@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<!-- Main landing page for Brewer's Eye graph timeline
+        (c) burin 2019
+-->
+
+<html>
+    <head>
+        <title>Brewer's Eye</title>
+        <!--link rel="stylesheet" href="mystyles.css"</link-->
+    </head>
+
+    <body>
+        <div> <!-- Select Fahrenheit or Celcius -->
+            <input type="checkbox" id="unitsCheckbox">
+            <label for="units">English Units</label>
+        </div>
+        <div> <!-- get current temperature/humidity -->
+            <div class="inline_block">
+                <p id="graphTimeline"></p>
+            </div>
+            <div class="clear_formatting"></div>
+        </div>
+    </body>
+
+<script src="./vis//node_modules/vis-timeline/dist/vis-timeline-graph2d.min.js"></script>
+<!-- TODO - Using vis graph2d stylesheet for the moment. Can we embed sytles? -->
+<link href="./vis/node_modules/vis-timeline/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="timelineGraph.js"></script>
+</html>

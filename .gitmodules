@@ -1,0 +1,3 @@
+[submodule "client/vis"]
+	path = client/vis
+	url = git@github.com:burinm/vis.git

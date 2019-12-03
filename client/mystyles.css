@@ -1,0 +1,21 @@
+/* mystyles.css - pairs with index.html
+
+    The only style used here is to put components
+    side-by-side in a <div> tag
+
+    <div>
+    [component][component]
+    </div>
+*/
+div.inline_block {
+    display: inline-block;
+}
+
+div.clear_formatting {
+    /* https://stackoverflow.com/questions/19089933/how-to-position-two-elements-side-by-side-using-css/19090124 */
+    clear: both;
+}
+
+div#debug_panel {
+    overflow: auto;
+}
