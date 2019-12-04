@@ -6,8 +6,11 @@ let body = d.body;
 let timelineContainer = d.getElementById("graphTimeline");
 
 function formatDate(d) {
+
+let monthAdjusted = (parseInt(d.getMonth(), 10) + 1).toString();
 let displayDate =   d.getFullYear() + "-" +
-            ("00" + d.getMonth()).slice(-2) + "-" +
+            //("00" + d.getMonth()).slice(-2) + "-" +
+            ("00" + monthAdjusted).slice(-2) + "-" +
             ("00" + d.getDate()).slice(-2) + " " +
             ("00" + d.getHours()).slice(-2) + ":" +
             ("00" + d.getMinutes()).slice(-2) + ":" +
@@ -20,6 +23,17 @@ return displayDate;
 function getNewTimeRangeData (p) {
     console.log(formatDate(p.start));
     console.log(formatDate(p.end));
+
+    let start = formatDate(p.start);
+    let end = formatDate(p.end);
+    let queryString = "./sensor1?start=" + start + "&end=" + end;
+    jQuery.get(queryString, function(graph, status) {
+        if (status == "success") {
+            console.log(graph);
+        } else {
+            console.log("Jquery failed to get sensor information");
+        }
+    });
 }
 
 
@@ -44,8 +58,8 @@ dataset.add({x: '2014-06-01', y: 1, group: 0});
 console.log(dataset);
 
 let options = {
-    start: '2014-06-10',
-    end: '2014-06-18'
+    start: '2019-12-1',
+    end: '2019-12-2'
 };
 let graph2d = new vis.Graph2d(timelineContainer, dataset, options);
 
