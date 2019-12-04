@@ -1,0 +1,71 @@
+CREATE DATABASE node88;
+
+create table sensor1 (id BIGINT not NULL AUTO_INCREMENT, value FLOAT(24), timestamp DATETIME(6), PRIMARY KEY (id));
+
+create table sensor2 (id BIGINT not NULL AUTO_INCREMENT, value FLOAT(24), timestamp DATETIME(6), PRIMARY KEY (id));
+
+create table bubbles (id BIGINT not NULL AUTO_INCREMENT, value INT, timestamp DATETIME(6), PRIMARY KEY (id));
+
+MariaDB [node88]> show tables;
++------------------+
+| Tables_in_node88 |
++------------------+
+| bubbles          |
+| sensor1          |
+| sensor2          |
++------------------+
+3 rows in set (0.002 sec)
+
+MariaDB [node88]> describe bubbles
+    -> ;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | bigint(20)  | NO   | PRI | NULL    | auto_increment |
+| value     | int(11)     | YES  |     | NULL    |                |
+| timestamp | datetime(6) | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+3 rows in set (0.004 sec)
+
+MariaDB [node88]> show tables;
++------------------+
+| Tables_in_node88 |
++------------------+
+| bubbles          |
+| sensor1          |
+| sensor2          |
++------------------+
+3 rows in set (0.001 sec)
+
+MariaDB [node88]> describe bubbles;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | bigint(20)  | NO   | PRI | NULL    | auto_increment |
+| value     | int(11)     | YES  |     | NULL    |                |
+| timestamp | datetime(6) | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+3 rows in set (0.004 sec)
+
+MariaDB [node88]> describe sensor1;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | bigint(20)  | NO   | PRI | NULL    | auto_increment |
+| value     | float       | YES  |     | NULL    |                |
+| timestamp | datetime(6) | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+3 rows in set (0.005 sec)
+
+MariaDB [node88]> describe sensor2;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | bigint(20)  | NO   | PRI | NULL    | auto_increment |
+| value     | float       | YES  |     | NULL    |                |
+| timestamp | datetime(6) | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+3 rows in set (0.005 sec)
+
+MariaDB [node88]> 
+
