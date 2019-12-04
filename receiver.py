@@ -20,19 +20,7 @@ from MessageParser import MessageStreamParser
 from MessageProtocol import beMessageType
 import thingspeak
 
-from db import db_add_sensor1_entry, db_add_sensor2_entry, db_add_bubbles_entry
-
-
-# TODO - add back milliseconds?
-def to_mysql_date(seconds: float):
-    # MySQL documentation - TIMESTATMP is 'YYYY-MM-DD hh:mm:ss[.fraction]'
-    # https://dev.mysql.com/doc/refman/8.0/en/datetime.html
-    # https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
-    #
-    # Converting:
-    # https://www.programiz.com/python-programming/datetime/timestamp-datetime
-    dt = datetime.fromtimestamp(int(seconds))
-    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
+from db import db_add_sensor1_entry, db_add_sensor2_entry, db_add_bubbles_entry, to_mysql_date
 
 
 class sensorData:

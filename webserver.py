@@ -3,9 +3,10 @@
 
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 # from db import db_get_last_temperature_entries, db_get_last_humidity_entries, \
 #                db_add_temperature_entry, db_add_humidity_entry
+from db import db_get_sensor1_entries_by_date
 
 import threading
 import signal
@@ -14,6 +15,8 @@ import signal
 import tornado.ioloop
 import tornado.web
 import tornado.ioloop
+
+import json
 
 __author__ = "burin"
 __copyright__ = "(c)2019"
@@ -27,14 +30,27 @@ def getTimestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
 
 
-"""
-        if updateDatabase:
-            # mySql can only do one query at a time
-            sensorThread.databaseLock.acquire()
-            db_add_temperature_entry(sensorThread.temperature, timestamp)
-            db_add_humidity_entry(sensorThread.humidity, timestamp)
-            sensorThread.databaseLock.release()
-"""
+class Sensor1Handler(tornado.web.RequestHandler):
+    """ Returns sensor1 temperature list in JSON string
+            <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+    """
+    def get(self):
+
+        # Number of entries to request (default = 24 hours)
+        #               43200 = number of seconds in 12 hours
+        start_date = self.get_query_argument("start", datetime.now() - timedelta(0, 43200))
+        end_date = self.get_query_argument("end", datetime.now() + timedelta(0, 43200))
+
+        # TODO - validete input (use try/except, strptime)
+
+        # mySql can only do one query at a time
+        databaseLock.acquire()
+        data = db_get_sensor1_entries_by_date(start_date, end_date)
+        databaseLock.release()
+
+        # Write raw JSON string intstead of HTML source
+        self.write(json.dumps(data))
 
 
 def ctrl_c(signum, frame):
@@ -73,6 +89,7 @@ class fixStaticFileHandler(tornado.web.StaticFileHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
+        (r"/sensor1", Sensor1Handler),
         (r"/(.*)", fixStaticFileHandler, {'path': "./client"})
      ], **settings)
 

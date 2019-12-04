@@ -28,6 +28,18 @@ __author__ = "burin"
 __copyright__ = "(c)2019"
 
 
+# TODO - add back milliseconds?
+def to_mysql_date(seconds: float):
+    # MySQL documentation - TIMESTATMP is 'YYYY-MM-DD hh:mm:ss[.fraction]'
+    # https://dev.mysql.com/doc/refman/8.0/en/datetime.html
+    # https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+    #
+    # Converting:
+    # https://www.programiz.com/python-programming/datetime/timestamp-datetime
+    dt = datetime.fromtimestamp(int(seconds))
+    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
+
+
 def db_singleton():
     """ Only open the database once """
     try:
@@ -85,11 +97,10 @@ def db_add_bubbles_entry(bubbles: int, timestamp: str):
     db.commit()
 
 
-def db_get_last_temperature_entries(n: int):
-    """ Get the last 'n' entries from the temperature table """
-    # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc
-    query = "(SELECT * FROM temperature ORDER BY id DESC LIMIT %s) ORDER BY id ASC;"
-    data = (n, )
+def db_get_sensor1_entries_by_date(start: str, end: str):
+    """ Get sensor1 entries for the specified date range """
+    query = "SELECT * FROM sensor1 where timestamp >= %s and timestamp <= %s;"
+    data = (start, end)
     db, cursor = db_singleton()
     cursor.execute(query, data)
 
@@ -97,7 +108,7 @@ def db_get_last_temperature_entries(n: int):
     # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
     # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
     # return {'temperatures': [(int(i[0]), float(i[1]), str(i[2])) for i in result]}
-    return {'temperatures': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+    return {'sensor1': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
 
 
 def db_get_last_humidity_entries(n: int):
