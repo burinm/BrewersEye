@@ -5,6 +5,10 @@ let body = d.body;
 
 let timelineContainer = d.getElementById("graphTimeline");
 
+class globals {
+    static sensor1_cache = new Object();
+}
+
 function formatDate(d) {
 
 let monthAdjusted = (parseInt(d.getMonth(), 10) + 1).toString();
@@ -27,9 +31,29 @@ function getNewTimeRangeData (p) {
     let start = formatDate(p.start);
     let end = formatDate(p.end);
     let queryString = "./sensor1?start=" + start + "&end=" + end;
-    jQuery.get(queryString, function(graph, status) {
+    jQuery.getJSON(queryString, function(sensor1_data, status) {
         if (status == "success") {
-            console.log(graph);
+            console.log(sensor1_data);
+            let items = [];
+            sensor1_data.sensor1.forEach(function(entry) {
+                if (globals.sensor1_cache[entry.index] === undefined) {
+                    console.log("->", globals.sensor1_cache[entry.index]);
+                    globals.sensor1_cache[entry.index] = 1;
+
+                    let item = {};
+                    item['id'] = entry.index;
+                    item['x'] = entry.timestamp;
+                    item['y'] = entry.temperature;
+                    item['group'] = 0;
+                    items.push(item);
+                    //console.log(item);
+                }
+            });
+            if (items.length > 0) {
+                dataset.add(items);
+            }
+            //console.log(dataset);
+            items.length=0; //Tell javascript we are done with this
         } else {
             console.log("Jquery failed to get sensor information");
         }
@@ -40,6 +64,7 @@ function getNewTimeRangeData (p) {
 /* example setup code
     https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
 */
+/*
 let items = [
 {x: '2014-06-11', y: 10, group: 0},
 {x: '2014-06-12', y: 25, group: 0},
@@ -48,18 +73,14 @@ let items = [
 {x: '2014-06-12', y: 15, group: 1},
 {x: '2014-06-13', y: 30, group: 1}
 ];
+*/
 
-let dataset = new vis.DataSet(items);
-dataset.add({x: '2014-06-01', y: 1, group: 0});
-dataset.add({x: '2014-06-01', y: 1, group: 0});
-dataset.add({x: '2014-06-01', y: 1, group: 0});
-dataset.add({x: '2014-06-01', y: 1, group: 0});
-dataset.add({x: '2014-06-01', y: 1, group: 0});
-console.log(dataset);
+//let dataset = new vis.DataSet(items);
+let dataset = new vis.DataSet();
 
 let options = {
-    start: '2019-12-1',
-    end: '2019-12-2'
+    start: '2019-12-2 00:00:00',
+    end: '2019-12-2 00:30:00'
 };
 let graph2d = new vis.Graph2d(timelineContainer, dataset, options);
 
