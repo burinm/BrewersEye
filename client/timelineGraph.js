@@ -105,8 +105,34 @@ let dataset = new vis.DataSet();
 
 let options = {
     start: '2019-12-2 00:00:00',
-    end: '2019-12-2 00:30:00'
+    end: '2019-12-2 00:30:00',
+    style: 'line',
+    dataAxis: {
+     left: {
+      range: { max: 30, min: 0 }
+     },
+     right: {
+      title: { text: "bubbles" },
+      range: { max: 100, min: 0 }
+     }
+    },
+    legend: true
 };
+
+let groups = new vis.DataSet();
+groups.add({
+    id: 1,
+    style: 'bar',
+    options: {
+        drawPoints: {
+            size:10,
+            style: 'square'
+        }
+    }
+});
+
 let graph2d = new vis.Graph2d(timelineContainer, dataset, options);
+
+graph2d.setGroups(groups);
 
 graph2d.on('rangechanged', getNewTimeRangeData);
