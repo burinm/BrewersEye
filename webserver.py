@@ -34,6 +34,7 @@ class Sensor1Handler(tornado.web.RequestHandler):
     """ Returns sensor1 temperature list in JSON string
             <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
             <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <mod> =   skip every nth entry
     """
     def get(self):
 
@@ -41,12 +42,13 @@ class Sensor1Handler(tornado.web.RequestHandler):
         #               43200 = number of seconds in 12 hours
         start_date = self.get_query_argument("start", datetime.now() - timedelta(0, 43200))
         end_date = self.get_query_argument("end", datetime.now() + timedelta(0, 43200))
+        mod = self.get_query_argument("mod", 1)
 
         # TODO - validete input (use try/except, strptime)
 
         # mySql can only do one query at a time
         databaseLock.acquire()
-        data = db_get_sensor1_entries_by_date(start_date, end_date)
+        data = db_get_sensor1_entries_by_date(start_date, end_date, mod)
         databaseLock.release()
 
         # Write raw JSON string intstead of HTML source

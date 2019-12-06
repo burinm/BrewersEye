@@ -97,12 +97,15 @@ def db_add_bubbles_entry(bubbles: int, timestamp: str):
     db.commit()
 
 
-def db_get_sensor1_entries_by_date(start: str, end: str):
+def db_get_sensor1_entries_by_date(start: str, end: str, mod: int = 1):
     """ Get sensor1 entries for the specified date range """
-    query = "SELECT * FROM sensor1 where timestamp >= %s and timestamp <= %s;"
-    data = (start, end)
+    query = "SELECT * FROM sensor1 where timestamp >= %s and timestamp <= %s and sensor1.id mod %s = 0;"
+    data = (start, end, mod)
     db, cursor = db_singleton()
     cursor.execute(query, data)
+
+    # https://stackoverflow.com/questions/858746/how-do-you-select-every-n-th-row-from-mysql
+    # mod trick! only select every other n'th row!
 
     result = cursor.fetchall()
     # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple

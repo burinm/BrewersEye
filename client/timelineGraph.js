@@ -11,7 +11,9 @@ class globals {
 
 function formatDate(d) {
 
+// Javascript is wierd, January = 0, December = 11
 let monthAdjusted = (parseInt(d.getMonth(), 10) + 1).toString();
+
 let displayDate =   d.getFullYear() + "-" +
             //("00" + d.getMonth()).slice(-2) + "-" +
             ("00" + monthAdjusted).slice(-2) + "-" +
@@ -28,9 +30,16 @@ function getNewTimeRangeData (p) {
     console.log(formatDate(p.start));
     console.log(formatDate(p.end));
 
+    //Get time window in seconds
+    let timeDiff = Math.round((p.end.getTime()/1000) - (p.start.getTime()/1000));
+    console.log("Timeframe is", timeDiff, "seconds");
+    //let timeMod = Math.pow(2,Math.floor(timeDiff / 400));
+    let timeMod = Math.ceil(timeDiff / 400 * .3);
+    console.log("TimeMod is every ", timeMod, "th entry");
+
     let start = formatDate(p.start);
     let end = formatDate(p.end);
-    let queryString = "./sensor1?start=" + start + "&end=" + end;
+    let queryString = "./sensor1?start=" + start + "&end=" + end + "&mod=" + timeMod;
     jQuery.getJSON(queryString, function(sensor1_data, status) {
         if (status == "success") {
             console.log(sensor1_data);
