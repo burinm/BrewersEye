@@ -6,7 +6,9 @@ let body = d.body;
 let timelineContainer = d.getElementById("graphTimeline");
 
 class globals {
+    //Set if we've fetched this data already
     static sensor1_cache = new Object();
+    static sensor2_cache = new Object();
 }
 
 function formatDate(d) {
@@ -39,6 +41,7 @@ function getNewTimeRangeData (p) {
 
     let start = formatDate(p.start);
     let end = formatDate(p.end);
+
     let queryString = "./sensor1?start=" + start + "&end=" + end + "&mod=" + timeMod;
     jQuery.getJSON(queryString, function(sensor1_data, status) {
         if (status == "success") {
@@ -50,7 +53,7 @@ function getNewTimeRangeData (p) {
                     globals.sensor1_cache[entry.index] = 1;
 
                     let item = {};
-                    item['id'] = entry.index;
+                    //item['id'] = entry.index; --can't use with groups
                     item['x'] = entry.timestamp;
                     item['y'] = entry.temperature;
                     item['group'] = 0;
@@ -64,7 +67,32 @@ function getNewTimeRangeData (p) {
             //console.log(dataset);
             items.length=0; //Tell javascript we are done with this
         } else {
-            console.log("Jquery failed to get sensor information");
+            console.log("Jquery failed to get sensor1 information");
+        }
+    });
+
+    queryString = "./sensor2?start=" + start + "&end=" + end + "&mod=" + timeMod;
+    jQuery.getJSON(queryString, function(sensor2_data, status) {
+        if (status == "success") {
+            let items = [];
+            sensor2_data.sensor2.forEach(function(entry) {
+                if (globals.sensor2_cache[entry.index] === undefined) {
+                    globals.sensor2_cache[entry.index] = 1;
+
+                    let item = {};
+                    //item['id'] = entry.index; --can't use with groups
+                    item['x'] = entry.timestamp;
+                    item['y'] = entry.temperature;
+                    item['group'] = 1; //Note different group
+                    items.push(item);
+                }
+            });
+            if (items.length > 0) {
+                dataset.add(items);
+            }
+            items.length=0; //Tell javascript we are done with this
+        } else {
+            console.log("Jquery failed to get sensor2 information");
         }
     });
 }
@@ -73,18 +101,6 @@ function getNewTimeRangeData (p) {
 /* example setup code
     https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
 */
-/*
-let items = [
-{x: '2014-06-11', y: 10, group: 0},
-{x: '2014-06-12', y: 25, group: 0},
-{x: '2014-06-13', y: 30, group: 0},
-{x: '2014-06-11', y: 10, group: 1},
-{x: '2014-06-12', y: 15, group: 1},
-{x: '2014-06-13', y: 30, group: 1}
-];
-*/
-
-//let dataset = new vis.DataSet(items);
 let dataset = new vis.DataSet();
 
 let options = {

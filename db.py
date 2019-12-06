@@ -114,6 +114,23 @@ def db_get_sensor1_entries_by_date(start: str, end: str, mod: int = 1):
     return {'sensor1': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
 
 
+def db_get_sensor2_entries_by_date(start: str, end: str, mod: int = 1):
+    """ Get sensor1 entries for the specified date range """
+    query = "SELECT * FROM sensor2 where timestamp >= %s and timestamp <= %s and sensor2.id mod %s = 0;"
+    data = (start, end, mod)
+    db, cursor = db_singleton()
+    cursor.execute(query, data)
+
+    # https://stackoverflow.com/questions/858746/how-do-you-select-every-n-th-row-from-mysql
+    # mod trick! only select every other n'th row!
+
+    result = cursor.fetchall()
+    # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
+    # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    # return {'temperatures': [(int(i[0]), float(i[1]), str(i[2])) for i in result]}
+    return {'sensor2': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+
+
 def db_get_last_humidity_entries(n: int):
     """ Get the last 'n' entries from the humidity table """
     # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc
@@ -127,32 +144,3 @@ def db_get_last_humidity_entries(n: int):
     # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
     # return tuple([(float(i[1]), str(i[2])) for i in result])
     return {'humidities': [{'index': int(i[0]), 'humidity': float(i[1]), 'timestamp': str(i[2])} for i in result]}
-
-
-def test_fill_database():
-    """ Test function to test database without sensors,
-            :see below:
-    """
-
-    for n in range(10):
-        temperature = n * 1.700349
-        # MySQL documentation - TIMESTATMP is 'YYYY-MM-DD hh:mm:ss[.fraction]'
-        # https://dev.mysql.com/doc/refman/8.0/en/datetime.html
-        # https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
-        #                                   luckily %f is 6 digits
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        print("{},{}".format(temperature, timestamp))
-        humidity = n*10
-
-        # TODO, need try, except, finally
-        db_add_temperature_entry(temperature, timestamp)
-        db_add_humidity_entry(humidity, timestamp)
-
-
-""" Uncomment to run test code """
-# test_fill_database()
-# for i in db_get_last_temperature_entries(9):
-#     print(i)
-# for i in db_get_last_humidity_entries(5):
-#     print(i)
-# db_destroy()
