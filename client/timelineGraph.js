@@ -221,8 +221,8 @@ let options2 = {
     start: start_date,
     end: end_date,
     orientation: 'top',
-    editable: { add: true, remove: true},
-    //editable: true,
+    //editable: { add: true, remove: true},
+    editable: true,
     selectable: true,
 
     onUpdate: function(item, callback) {
