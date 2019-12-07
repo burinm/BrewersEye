@@ -11,21 +11,47 @@
     </head>
 
     <body>
-        <div> <!-- Select Fahrenheit or Celcius -->
-            <input type="checkbox" id="unitsCheckbox">
-            <label for="units">English Units</label>
-        </div>
-        <div> <!-- get current temperature/humidity -->
-            <div class="inline_block">
-                <p id="graphTimeline"></p>
+        <div class="inline_block">
+            <div class="farleft">
+                <select>
+                    <option value="node88">Node 88</option>
+                    <option value="node01">Node 01</option>
+                    <option value="node02">Node 02</option>
+                </select>
             </div>
-            <div class="clear_formatting"></div>
+            <div class="farright">
+                <!-- Select Fahrenheit or Celcius -->
+                <input type="checkbox" id="unitsCheckbox">
+                <label for="units">English Units</label>
+            </div>
+        </div>
+        <div class="clear_formatting"></div-->
+
+        <div class="inline_block">
+            <div style="float:left; width:75%">
+                <p class="outputDisplay" id=beerName>Dunkel</p>
+                <p class="outputSmallDisplay" id=beerOG>OG: 1.0058</p>
+                <p class="outputSmallDisplay" id=beerFG>FG: 1.011</p>
+            </div>
+            <div style="float:left; width:20%">
+                <p class="outputDisplay" id=temperatureOutdoor>30&#176;C</p>
+                <p class="outputDisplay" id=temperatureIndoor>25&#176;C</p>
+                <p class="outputDisplay" id=bubbleRate>345 bpm</p>
+            </div>
+            <div style="float:left; width:5%">
+                <canvas id="bubblesCanvas" width="20" height="100" style="border:2px solid #000000;"></canvas>
+            </div>
+        </div>
+        <div class="clear_formatting"></div-->
+
+        <div>
+                <p id="graphTimeline"></p>
         </div>
     </body>
 
 <script type="text/javascript" src="./jquery-3.4.1.js"></script>
-<script src="./vis//node_modules/vis-timeline/dist/vis-timeline-graph2d.min.js"></script>
+<script src="./vis-6.2.9/vis-timeline-graph2d.min.js"></script>
 <!-- TODO - Using vis graph2d stylesheet for the moment. Can we embed sytles? -->
-<link href="./vis/node_modules/vis-timeline/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+<link href="./vis-6.2.9/vis-timeline-graph2d.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="timelineGraph.js"></script>
 </html>

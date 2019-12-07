@@ -109,6 +109,7 @@ let options = {
     style: 'line',
     dataAxis: {
      left: {
+      title: { text: "Temp C" },
       range: { max: 30, min: 0 }
      },
      right: {
