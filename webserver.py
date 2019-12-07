@@ -6,7 +6,7 @@
 from datetime import datetime, timedelta
 # from db import db_get_last_temperature_entries, db_get_last_humidity_entries, \
 #                db_add_temperature_entry, db_add_humidity_entry
-from db import db_get_sensor1_entries_by_date, db_get_sensor2_entries_by_date
+from db import db_get_sensor1_entries_by_date, db_get_sensor2_entries_by_date, db_get_bubbles_entries_by_date
 
 import threading
 import signal
@@ -80,6 +80,31 @@ class Sensor2Handler(tornado.web.RequestHandler):
         self.write(json.dumps(data))
 
 
+class BubbleHandler(tornado.web.RequestHandler):
+    """ Returns sensor1 temperature list in JSON string
+            <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <mod> =   skip every nth entry
+    """
+    def get(self):
+
+        # Number of entries to request (default = 24 hours)
+        #               43200 = number of seconds in 12 hours
+        start_date = self.get_query_argument("start", datetime.now() - timedelta(0, 43200))
+        end_date = self.get_query_argument("end", datetime.now() + timedelta(0, 43200))
+        mod = self.get_query_argument("mod", 1)
+
+        # TODO - validete input (use try/except, strptime)
+
+        # mySql can only do one query at a time
+        databaseLock.acquire()
+        data = db_get_bubbles_entries_by_date(start_date, end_date, mod)
+        databaseLock.release()
+
+        # Write raw JSON string intstead of HTML source
+        self.write(json.dumps(data))
+
+
 def ctrl_c(signum, frame):
     """ Exit gracefully """
     print("Stopped by user")
@@ -118,6 +143,7 @@ def make_app():
         (r"/", MainHandler),
         (r"/sensor1", Sensor1Handler),
         (r"/sensor2", Sensor2Handler),
+        (r"/bubbles", BubbleHandler),
         (r"/(.*)", fixStaticFileHandler, {'path': "./client"})
      ], **settings)
 

@@ -131,6 +131,23 @@ def db_get_sensor2_entries_by_date(start: str, end: str, mod: int = 1):
     return {'sensor2': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
 
 
+def db_get_bubbles_entries_by_date(start: str, end: str, mod: int = 1):
+    """ Get sensor1 entries for the specified date range """
+    query = "SELECT * FROM bubbles where timestamp >= %s and timestamp <= %s and bubbles.id mod %s = 0;"
+    data = (start, end, mod)
+    db, cursor = db_singleton()
+    cursor.execute(query, data)
+
+    # https://stackoverflow.com/questions/858746/how-do-you-select-every-n-th-row-from-mysql
+    # mod trick! only select every other n'th row!
+
+    result = cursor.fetchall()
+    # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
+    # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    # return {'temperatures': [(int(i[0]), float(i[1]), str(i[2])) for i in result]}
+    return {'bubbles': [{'index': int(i[0]), 'average': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+
+
 def db_get_last_humidity_entries(n: int):
     """ Get the last 'n' entries from the humidity table """
     # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc

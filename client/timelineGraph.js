@@ -3,12 +3,14 @@
 let d = document;
 let body = d.body;
 
-let timelineContainer = d.getElementById("graphTimeline");
+let graph2dContainer = d.getElementById("graph2dGraph");
+let timelineContainer = d.getElementById("timelineGraph");
 
 class globals {
     //Set if we've fetched this data already
     static sensor1_cache = new Object();
     static sensor2_cache = new Object();
+    static bubbles_cache = new Object();
 }
 
 function formatDate(d) {
@@ -97,19 +99,58 @@ function getNewTimeRangeData (p) {
     });
 }
 
+function getNewTimelineData(p) {
+    console.log(formatDate(p.start));
+    console.log(formatDate(p.end));
 
-/* example setup code
-    https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
-*/
-let dataset = new vis.DataSet();
+    //Get time window in seconds
+    let timeDiff = Math.round((p.end.getTime()/1000) - (p.start.getTime()/1000));
+    console.log("Timeframe is", timeDiff, "seconds");
+    //let timeMod = Math.pow(2,Math.floor(timeDiff / 400));
+    let timeMod = Math.ceil(timeDiff / 400 * .3);
+    console.log("TimeMod is every ", timeMod, "th entry");
+
+    let start = formatDate(p.start);
+    let end = formatDate(p.end);
+
+    let queryString = "./bubbles?start=" + start + "&end=" + end + "&mod=" + timeMod;
+    jQuery.getJSON(queryString, function(bubbles_data, status) {
+        if (status == "success") {
+            let items = [];
+            bubbles_data.bubbles.forEach(function(entry) {
+                if (globals.bubbles_cache[entry.index] === undefined) {
+                    globals.bubbles_cache[entry.index] = 1;
+
+                    let item = {};
+                    //item['id'] = entry.index; --can't use with groups
+                    item['start'] = entry.timestamp;
+                    item['content'] = (entry.average).toString();
+                    item['group'] = 2; //Note different group
+                    items.push(item);
+                }
+            });
+            if (items.length > 0) {
+                dataset2.add(items);
+            }
+            items.length=0; //Tell javascript we are done with this
+        } else {
+            console.log("Jquery failed to get bubbles information");
+        }
+    });
+}
 
 let now_date = Date.now();
 let eightHours = (60 * 60 * 8) * 1000;
 let start_date = new Date(now_date - eightHours);
 let end_date = new Date(now_date);
 
-console.log("Start chart at:", start_date);
-console.log("End chart at:", end_date);
+console.log("Start charts at:", start_date);
+console.log("End charts at:", end_date);
+
+/* graph2d - example setup code
+    https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
+*/
+let dataset = new vis.DataSet();
 
 let options = {
     start: start_date,
@@ -140,8 +181,26 @@ groups.add({
     }
 });
 
-let graph2d = new vis.Graph2d(timelineContainer, dataset, options);
-
+let graph2d = new vis.Graph2d(graph2dContainer, dataset, options);
 graph2d.setGroups(groups);
-
 graph2d.on('rangechanged', getNewTimeRangeData);
+
+/* Timeline - https://almende.github.io/vis/docs/timeline/
+*/
+
+let dataset2 = new vis.DataSet();
+let options2 = {
+    start: start_date,
+    end: end_date,
+/*
+    dataAxis: {
+     left: {
+      title: { text: "Bubbles Average" },
+      range: { max: 500, min: 0 }
+     }
+    }
+*/
+};
+
+let timeline = new vis.Timeline(timelineContainer, dataset2, options2);
+timeline.on('rangechanged', getNewTimelineData);
