@@ -144,7 +144,8 @@ function getNewTimelineData(p) {
                     //item['id'] = entry.index; --can't use with groups
                     item['start'] = entry.timestamp;
                     item['content'] = (entry.average).toString();
-                    item['group'] = 1; //Note different group
+                    item['group'] = 0; //Note different group
+                    item['editable'] = false; //Note different group
                     items.push(item);
                 }
             });
@@ -187,6 +188,8 @@ let options = {
      }
 */
     },
+    showMajorLabels: false,
+    showMinorLabels: false,
     legend: true
 };
 
@@ -213,31 +216,67 @@ graph2d.on('rangechanged', getNewTimeRangeData);
 
 let dataset2 = new vis.DataSet();
 let options2 = {
+    locales: { myEN: {current: 'current', time: 'time'}},
+    locale: 'myEN',
     start: start_date,
     end: end_date,
-/*
-    dataAxis: {
-     left: {
-      title: { text: "Bubbles Average" },
-      range: { max: 500, min: 0 }
-     }
-    }
-*/
+    orientation: 'top',
+    editable: { add: true, remove: true},
+    //editable: true,
+    selectable: true,
+
+    onUpdate: function(item, callback) {
+        // https://almende.github.io/vis/docs/timeline/index.html#Events
+        item.content = prompt('Edit item:', item.content);
+        if (item.content != null) {
+            callback(item); // send back adjusted item
+        }
+        else {
+            callback(null); // cancel updating the item
+        }
+    },
+
+    onAdd: function(item, callback) {
+        // https://almende.github.io/vis/docs/timeline/index.html#Events
+        item.content = prompt('Add event:', item.content);
+        item.editable = true;
+        if (item.content != null) {
+            callback(item); // send back adjusted item
+        }
+        else {
+            callback(null); // cancel updating the item
+        }
+    },
+
+    onDropObjectOnItem: function(o, item) {
+        console.log("onDropObjectOnItem - do nothing");
+    },
+
+    onMove: function(item, callback) {
+        console.log("onMove - do nothing");
+        callback(null);
+    },
+
 };
 
 
 let timeline = new vis.Timeline(timelineContainer, dataset2, options2);
 
 let groups2 = new vis.DataSet();
-groups2.add(
- { id: 0, content: 'Events&nbsp;', visible: true } // nbsp hack to set column width
-);
 
 groups2.add(
- { id: 1, content: '<p style="margin: 0;">Bubble</p> \
+ { id: 0, content: '<p style="margin: 0;">Bubble</p> \
                     <p style="margin: 0;">avg</p>',
-   visible: true }
+   visible: true,
+ }
 );
-timeline.setGroups(groups2);
 
+groups2.add(
+ { id: 1, content: 'Events&nbsp;', visible: true } // nbsp hack to set column width
+);
+
+timeline.setGroups(groups2);
 timeline.on('rangechanged', getNewTimelineData);
+timeline.on('select', function(items, event){
+    console.log(items);
+});
