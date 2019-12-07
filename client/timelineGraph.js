@@ -103,9 +103,17 @@ function getNewTimeRangeData (p) {
 */
 let dataset = new vis.DataSet();
 
+let now_date = Date.now();
+let eightHours = (60 * 60 * 8) * 1000;
+let start_date = new Date(now_date - eightHours);
+let end_date = new Date(now_date);
+
+console.log("Start chart at:", start_date);
+console.log("End chart at:", end_date);
+
 let options = {
-    start: '2019-12-2 00:00:00',
-    end: '2019-12-2 00:30:00',
+    start: start_date,
+    end: end_date,
     style: 'line',
     dataAxis: {
      left: {
