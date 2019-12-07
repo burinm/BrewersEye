@@ -148,10 +148,10 @@ def db_get_bubbles_entries_by_date(start: str, end: str, mod: int = 1):
     return {'bubbles': [{'index': int(i[0]), 'average': float(i[1]), 'timestamp': str(i[2])} for i in result]}
 
 
-def db_get_last_humidity_entries(n: int):
-    """ Get the last 'n' entries from the humidity table """
+def db_get_last_sensor1_entries(n: int):
+    """ Get the last 'n' entries from the sensor1 table """
     # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc
-    query = "(SELECT * FROM humidity ORDER BY id DESC LIMIT %s) ORDER BY id ASC;"
+    query = "(SELECT * FROM sensor1 ORDER BY id DESC LIMIT %s) ORDER BY id ASC;"
     data = (n, )
     db, cursor = db_singleton()
     cursor.execute(query, data)
@@ -160,4 +160,34 @@ def db_get_last_humidity_entries(n: int):
     # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
     # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
     # return tuple([(float(i[1]), str(i[2])) for i in result])
-    return {'humidities': [{'index': int(i[0]), 'humidity': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+    return {'entries': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+
+
+def db_get_last_sensor2_entries(n: int):
+    """ Get the last 'n' entries from the sensor2 table """
+    # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc
+    query = "(SELECT * FROM sensor2 ORDER BY id DESC LIMIT %s) ORDER BY id ASC;"
+    data = (n, )
+    db, cursor = db_singleton()
+    cursor.execute(query, data)
+
+    result = cursor.fetchall()
+    # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
+    # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    # return tuple([(float(i[1]), str(i[2])) for i in result])
+    return {'entries': [{'index': int(i[0]), 'temperature': float(i[1]), 'timestamp': str(i[2])} for i in result]}
+
+
+def db_get_last_bubble_entries(n: int):
+    """ Get the last 'n' entries from the bubbles table """
+    # https://dba.stackexchange.com/questions/156911/get-last-x-rows-order-by-asc
+    query = "(SELECT * FROM bubbles ORDER BY id DESC LIMIT %s) ORDER BY id ASC;"
+    data = (n, )
+    db, cursor = db_singleton()
+    cursor.execute(query, data)
+
+    result = cursor.fetchall()
+    # https://stackoverflow.com/questions/15410119/use-list-comprehension-to-build-a-tuple
+    # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    # return tuple([(float(i[1]), str(i[2])) for i in result])
+    return {'entries': [{'index': int(i[0]), 'average': float(i[1]), 'timestamp': str(i[2])} for i in result]}

@@ -6,7 +6,8 @@
 from datetime import datetime, timedelta
 # from db import db_get_last_temperature_entries, db_get_last_humidity_entries, \
 #                db_add_temperature_entry, db_add_humidity_entry
-from db import db_get_sensor1_entries_by_date, db_get_sensor2_entries_by_date, db_get_bubbles_entries_by_date
+from db import db_get_sensor1_entries_by_date, db_get_sensor2_entries_by_date, db_get_bubbles_entries_by_date, \
+                db_get_last_sensor1_entries, db_get_last_sensor2_entries, db_get_last_bubble_entries
 
 import threading
 import signal
@@ -105,6 +106,37 @@ class BubbleHandler(tornado.web.RequestHandler):
         self.write(json.dumps(data))
 
 
+class LatestHandler(tornado.web.RequestHandler):
+    """ Returns sensor1, sensor2 latest temperature, and 10 last bubble averages
+            in JSON string
+    """
+    def get(self):
+
+        results = {}
+
+        # mySql can only do one query at a time
+        databaseLock.acquire()
+        data = db_get_last_sensor1_entries(1)
+        databaseLock.release()
+
+        results['sensor1'] = data
+
+        databaseLock.acquire()
+        data = db_get_last_sensor2_entries(1)
+        databaseLock.release()
+
+        results['sensor2'] = data
+
+        databaseLock.acquire()
+        data = db_get_last_bubble_entries(10)
+        databaseLock.release()
+
+        results['bubbles'] = data
+
+        # Write raw JSON string intstead of HTML source
+        self.write(json.dumps(results))
+
+
 def ctrl_c(signum, frame):
     """ Exit gracefully """
     print("Stopped by user")
@@ -144,6 +176,7 @@ def make_app():
         (r"/sensor1", Sensor1Handler),
         (r"/sensor2", Sensor2Handler),
         (r"/bubbles", BubbleHandler),
+        (r"/latest", LatestHandler),
         (r"/(.*)", fixStaticFileHandler, {'path': "./client"})
      ], **settings)
 
