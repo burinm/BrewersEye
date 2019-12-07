@@ -34,6 +34,13 @@ function getNewTimeRangeData (p) {
     console.log(formatDate(p.start));
     console.log(formatDate(p.end));
 
+    if (p.manual === undefined) {
+        //Update timeline graph data too
+        p.manual = true;
+        getNewTimelineData(p);
+        timeline.setWindow(p.start, p.end);
+    }
+
     //Get time window in seconds
     let timeDiff = Math.round((p.end.getTime()/1000) - (p.start.getTime()/1000));
     console.log("Timeframe is", timeDiff, "seconds");
@@ -103,12 +110,24 @@ function getNewTimelineData(p) {
     console.log(formatDate(p.start));
     console.log(formatDate(p.end));
 
+    if (p.manual === undefined) {
+        //Update temperarute graph data too
+        p.manual = true;
+        getNewTimeRangeData(p);
+        graph2d.setWindow(p.start, p.end);
+    }
+
+
     //Get time window in seconds
     let timeDiff = Math.round((p.end.getTime()/1000) - (p.start.getTime()/1000));
     console.log("Timeframe is", timeDiff, "seconds");
     //let timeMod = Math.pow(2,Math.floor(timeDiff / 400));
     let timeMod = Math.ceil(timeDiff / 400 * .3);
     console.log("TimeMod is every ", timeMod, "th entry");
+
+/* TODO - once averaging is fixed, we might be grabbing all entries?
+    //let timeMod = 1;
+*/
 
     let start = formatDate(p.start);
     let end = formatDate(p.end);
@@ -125,7 +144,7 @@ function getNewTimelineData(p) {
                     //item['id'] = entry.index; --can't use with groups
                     item['start'] = entry.timestamp;
                     item['content'] = (entry.average).toString();
-                    item['group'] = 2; //Note different group
+                    item['group'] = 1; //Note different group
                     items.push(item);
                 }
             });
@@ -161,13 +180,18 @@ let options = {
       title: { text: "Temp C" },
       range: { max: 30, min: 0 }
      },
-     right: {
+/*
+     right: { //grrr, seems to be broken
       title: { text: "bubbles" },
       range: { max: 100, min: 0 }
      }
+*/
     },
     legend: true
 };
+
+
+let graph2d = new vis.Graph2d(graph2dContainer, dataset, options);
 
 let groups = new vis.DataSet();
 groups.add({
@@ -180,9 +204,8 @@ groups.add({
         }
     }
 });
-
-let graph2d = new vis.Graph2d(graph2dContainer, dataset, options);
 graph2d.setGroups(groups);
+
 graph2d.on('rangechanged', getNewTimeRangeData);
 
 /* Timeline - https://almende.github.io/vis/docs/timeline/
@@ -202,5 +225,19 @@ let options2 = {
 */
 };
 
+
 let timeline = new vis.Timeline(timelineContainer, dataset2, options2);
+
+let groups2 = new vis.DataSet();
+groups2.add(
+ { id: 0, content: 'Events&nbsp;', visible: true } // nbsp hack to set column width
+);
+
+groups2.add(
+ { id: 1, content: '<p style="margin: 0;">Bubble</p> \
+                    <p style="margin: 0;">avg</p>',
+   visible: true }
+);
+timeline.setGroups(groups2);
+
 timeline.on('rangechanged', getNewTimelineData);
