@@ -6,11 +6,26 @@ let body = d.body;
 let graph2dContainer = d.getElementById("graph2dGraph");
 let timelineContainer = d.getElementById("timelineGraph");
 
+const sensorEnum = {
+    FERMENTER_TEMP: 0,
+    AMBIENT_TEMP: 1,
+    BUBBLES_AVG: 2
+}
+
 class globals {
     //Set if we've fetched this data already
-    static sensor1_cache = new Object();
-    static sensor2_cache = new Object();
-    static bubbles_cache = new Object();
+    static sensor_cache = [];
+}
+
+
+
+function graphAddItem(value, timestamp, group, index) {
+    let item = {};
+    item['x'] = timestamp 
+    item['y'] = value;
+    item['group'] = group;
+    dataset.add(item);
+    globals.sensor_cache[group][index] = 1;
 }
 
 function formatDate(d) {
@@ -57,14 +72,14 @@ function getNewTimeRangeData (p) {
             //console.log(sensor1_data);
             let items = [];
             sensor1_data.sensor1.forEach(function(entry) {
-                if (globals.sensor1_cache[entry.index] === undefined) {
-                    globals.sensor1_cache[entry.index] = 1;
+                if (globals.sensor_cache[sensorEnum.FERMENTER_TEMP][entry.index] === undefined) {
+                    globals.sensor_cache[sensorEnum.FERMENTER_TEMP][entry.index] = 1;
 
                     let item = {};
                     //item['id'] = entry.index; --can't use with groups
                     item['x'] = entry.timestamp;
                     item['y'] = entry.temperature;
-                    item['group'] = 0;
+                    item['group'] = sensorEnum.FERMENTER_TEMP;
                     items.push(item);
                     //console.log(item);
                 }
@@ -84,14 +99,14 @@ function getNewTimeRangeData (p) {
         if (status == "success") {
             let items = [];
             sensor2_data.sensor2.forEach(function(entry) {
-                if (globals.sensor2_cache[entry.index] === undefined) {
-                    globals.sensor2_cache[entry.index] = 1;
+                if (globals.sensor_cache[sensorEnum.AMBIENT_TEMP][entry.index] === undefined) {
+                    globals.sensor_cache[sensorEnum.AMBIENT_TEMP][entry.index] = 1;
 
                     let item = {};
                     //item['id'] = entry.index; --can't use with groups
                     item['x'] = entry.timestamp;
                     item['y'] = entry.temperature;
-                    item['group'] = 1; //Note different group
+                    item['group'] = sensorEnum.AMBIENT_TEMP; //Note different group
                     items.push(item);
                 }
             });
@@ -136,14 +151,14 @@ function getNewTimelineData(p) {
         if (status == "success") {
             let items = [];
             bubbles_data.bubbles.forEach(function(entry) {
-                if (globals.bubbles_cache[entry.index] === undefined) {
-                    globals.bubbles_cache[entry.index] = 1;
+                if (globals.sensor_cache[sensorEnum.BUBBLES_AVG][entry.index] === undefined) {
+                    globals.sensor_cache[sensorEnum.BUBBLES_AVG][entry.index] = 1;
 
                     let item = {};
                     //item['id'] = entry.index; --can't use with groups
                     item['start'] = entry.timestamp;
                     item['content'] = (entry.average).toString();
-                    item['group'] = 0; //Note different group
+                    item['group'] = 0; //TODO make timeline ENUM
                     item['editable'] = false; //Note different group
                     items.push(item);
                 }
@@ -157,6 +172,11 @@ function getNewTimelineData(p) {
         }
     });
 }
+
+//Setup caches
+globals.sensor_cache[sensorEnum.FERMENTER_TEMP] = new Object;
+globals.sensor_cache[sensorEnum.AMBIENT_TEMP] = new Object;
+globals.sensor_cache[sensorEnum.BUBBLES_AVG] = new Object;
 
 let now_date = Date.now();
 let eightHours = (60 * 60 * 8) * 1000;
@@ -279,3 +299,5 @@ timeline.on('rangechanged', getNewTimelineData);
 timeline.on('select', function(items, event){
     console.log(items);
 });
+
+export {graphAddItem, sensorEnum};
