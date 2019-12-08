@@ -54,7 +54,7 @@ function getNewTimeRangeData (p) {
     let queryString = "./sensor1?start=" + start + "&end=" + end + "&mod=" + timeMod;
     jQuery.getJSON(queryString, function(sensor1_data, status) {
         if (status == "success") {
-            console.log(sensor1_data);
+            //console.log(sensor1_data);
             let items = [];
             sensor1_data.sensor1.forEach(function(entry) {
                 if (globals.sensor1_cache[entry.index] === undefined) {
