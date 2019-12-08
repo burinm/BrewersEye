@@ -92,3 +92,6 @@ MariaDB [node88]> SELECT @@GLOBAL.tx_isolation, @@tx_isolation;
 +-----------------------+----------------+
 1 row in set (0.001 sec)
 
+
+#Example to grab previous 10 entries from a date:
+select * from bubbles where timestamp <= '2019-12-07 13:40:11.000000' order by id desc limit 10;

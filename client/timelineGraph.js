@@ -132,45 +132,73 @@ function getNewTimelineData(p) {
     }
 
 
-    //Get time window in seconds
-    let timeDiff = Math.round((p.end.getTime()/1000) - (p.start.getTime()/1000));
-    console.log("Timeframe is", timeDiff, "seconds");
-    //let timeMod = Math.pow(2,Math.floor(timeDiff / 400));
-    let timeMod = Math.ceil(timeDiff / 400 * .3);
-    console.log("TimeMod is every ", timeMod, "th entry");
+    /* Bubble average uses a different strategy.
 
-/* TODO - once averaging is fixed, we might be grabbing all entries?
-    //let timeMod = 1;
-*/
+        Display average bubbles over each hour in timeline
+        cache is marked with the top of the hour that is loaded
 
-    let start = formatDate(p.start);
-    let end = formatDate(p.end);
+        TODO: We are adding an hour's worth of seconds - will this
+              blow up and return a time that isn't exactly an hour?
+              i.e. leap seconds, etc..
+    */
 
-    let queryString = "./bubbles?start=" + start + "&end=" + end + "&mod=" + timeMod;
-    jQuery.getJSON(queryString, function(bubbles_data, status) {
-        if (status == "success") {
-            let items = [];
-            bubbles_data.bubbles.forEach(function(entry) {
-                if (globals.sensor_cache[sensorEnum.BUBBLES_AVG][entry.index] === undefined) {
-                    globals.sensor_cache[sensorEnum.BUBBLES_AVG][entry.index] = 1;
+    /* Round to nearest hour
+        https://stackoverflow.com/questions/10789384/round-a-date-to-the-nearest-5-minutes-in-javascript
+    */
+    let an_hour = 60 * 60 * 1000;
+    let start_nearest_hour = new Date(Math.round(p.start.getTime() / an_hour) * an_hour);
 
-                    let item = {};
-                    //item['id'] = entry.index; --can't use with groups
-                    item['start'] = entry.timestamp;
-                    item['content'] = (entry.average).toString();
-                    item['group'] = 0; //TODO make timeline ENUM
-                    item['editable'] = false; //Note different group
-                    items.push(item);
-                }
-            });
-            if (items.length > 0) {
-                dataset2.add(items);
+    let debugger_count = 0;
+    for (let chunk = start_nearest_hour.getTime(); chunk < p.end.getTime(); chunk += an_hour) {
+        debugger_count += 1;
+        if (debugger_count > 100) break;
+
+        let chunk_date = formatDate(new Date(chunk));
+        let end_date = formatDate(new Date(chunk + an_hour));
+
+        console.log("->" + chunk_date + "," + end_date);
+
+        let queryString = "./bubbles?start=" + chunk_date + "&end=" + end_date + "&mod=1";
+        jQuery.getJSON(queryString, function(bubbles_data, status) {
+            if (status == "success") {
+                let average_count = 0;
+                let average_total = 0;
+
+                //Use just the fist index of the query to mark cache
+                let first_entry = bubbles_data.bubbles[0];
+                if (first_entry !== undefined) {
+                    if (globals.sensor_cache[sensorEnum.BUBBLES_AVG][first_entry.index] === undefined) {
+                        globals.sensor_cache[sensorEnum.BUBBLES_AVG][first_entry.index] = 1;
+
+                        bubbles_data.bubbles.forEach(function(entry) {
+                            average_total += entry.average;
+                            average_count += 1;
+                        });
+
+
+                        let average_bpm = 0;
+                        if (average_count > 0) {
+                            average_bpm = average_total / average_count;
+                            average_bpm = Math.round(average_bpm / 10);
+                        }
+
+                        console.log("avg count " + average_count + " avg=" + average_bpm);
+
+                        let item = {};
+                        item['start'] = first_entry.timestamp; //Only entering on the hour
+                        item['content'] = average_bpm.toString();
+                        item['group'] = 0; //TODO make timeline ENUM
+                        item['editable'] = false; //Note different group
+
+                        dataset2.add(item);
+                    }
+                } // else is already in cache
+            } else {
+                console.log("Jquery failed to get bubbles information");
             }
-            items.length=0; //Tell javascript we are done with this
-        } else {
-            console.log("Jquery failed to get bubbles information");
-        }
-    });
+        });
+    }
+
 }
 
 //Setup caches
