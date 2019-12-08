@@ -69,3 +69,26 @@ MariaDB [node88]> describe sensor2;
 
 MariaDB [node88]> 
 
+
+# 12-8-2019 Fix this, so latest wrties are readable:
+  
+#https://stackoverflow.com/questions/5943418/chronic-stale-results-using-mysqldb-in-python
+MariaDB [node88]> SELECT @@GLOBAL.tx_isolation, @@tx_isolation;
++-----------------------+-----------------+
+| @@GLOBAL.tx_isolation | @@tx_isolation  |
++-----------------------+-----------------+
+| REPEATABLE-READ       | REPEATABLE-READ |
++-----------------------+-----------------+
+1 row in set (0.001 sec)
+
+SET GLOBAL tx_isolation='READ-COMMITTED';
+SET SESSION tx_isolation='READ-COMMITTED';
+
+MariaDB [node88]> SELECT @@GLOBAL.tx_isolation, @@tx_isolation;
++-----------------------+----------------+
+| @@GLOBAL.tx_isolation | @@tx_isolation |
++-----------------------+----------------+
+| READ-COMMITTED        | READ-COMMITTED |
++-----------------------+----------------+
+1 row in set (0.001 sec)
+
