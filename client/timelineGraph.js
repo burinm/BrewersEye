@@ -58,7 +58,6 @@ function getNewTimeRangeData (p) {
             let items = [];
             sensor1_data.sensor1.forEach(function(entry) {
                 if (globals.sensor1_cache[entry.index] === undefined) {
-                    console.log("->", globals.sensor1_cache[entry.index]);
                     globals.sensor1_cache[entry.index] = 1;
 
                     let item = {};
