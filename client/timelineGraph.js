@@ -315,6 +315,7 @@ groups2.add(
  { id: 0, content: '<p style="margin: 0;">Bubble</p> \
                     <p style="margin: 0;">avg</p>',
    visible: true,
+   subgroupStack: true //Pile bubble averages on top of each other
  }
 );
 
