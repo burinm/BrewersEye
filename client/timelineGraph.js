@@ -287,6 +287,7 @@ let options2 = {
         // https://almende.github.io/vis/docs/timeline/index.html#Events
         item.content = prompt('Add event:', item.content);
         item.editable = true;
+        item.style = " color:black; background-color: yellow;";
         if (item.content != null) {
             callback(item); // send back adjusted item
         }
@@ -315,12 +316,14 @@ groups2.add(
  { id: 0, content: '<p style="margin: 0;">Bubble</p> \
                     <p style="margin: 0;">avg</p>',
    visible: true,
-   subgroupStack: true //Pile bubble averages on top of each other
+   subgroupStack: true, //Pile bubble averages on top of each other
  }
 );
 
 groups2.add(
- { id: 1, content: 'Events&nbsp;', visible: true } // nbsp hack to set column width
+ { id: 1, content: 'Events&nbsp;', // nbsp hack to set column width
+   visible: true,
+ }
 );
 
 timeline.setGroups(groups2);
