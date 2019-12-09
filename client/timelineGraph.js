@@ -237,23 +237,39 @@ let options = {
     },
     showMajorLabels: false,
     showMinorLabels: false,
-    legend: true
+    // legend: true
 };
 
 
 let graph2d = new vis.Graph2d(graph2dContainer, dataset, options);
 
 let groups = new vis.DataSet();
-groups.add({
-    id: 1,
+groups.add(
+ {
+    id: sensorEnum.FERMENTER_TEMP,
     style: 'bar',
     options: {
         drawPoints: {
-            size:10,
-            style: 'square'
+            size:5,
+            style: 'circle'
         }
     }
-});
+ }
+);
+
+groups.add(
+ {
+    id: sensorEnum.AMBIENT_TEMP,
+    style: 'bar',
+    options: {
+        drawPoints: {
+            size:5,
+            style: 'circle'
+        }
+    }
+ }
+);
+
 graph2d.setGroups(groups);
 
 graph2d.on('rangechanged', getNewTimeRangeData);
