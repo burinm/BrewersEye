@@ -46,11 +46,11 @@ alertsList.forEach(function(entry) {
     html += "<p>";
 
             html += "<div style='float:left; width:5%'>";
-                html += "<input id='" + entry.id + "' type='checkbox'>";
+                html += "<input id='" + entry.id + "Alert" + "' type='checkbox'>";
             html += "</div>";
 
             html += "<div style='float:left; width:40%'>";
-                html += "<p style='font-size: 20px; margin:0;'>" + entry.desc + "</p>";
+                html += "<p id='" + entry.id + "Desc" + "' style='font-size: 20px; margin:0; color: #808080;'>" + entry.desc + "</p>";
             html += "</div>";
 
             html += "<div style='float:left; width:5%'>";
@@ -59,7 +59,7 @@ alertsList.forEach(function(entry) {
             html += "</div>";
 
             html += "<div style='float:left; width:50%'>";
-                html += "<input id='" + entry.id + "Slider" + "' type='range' min='0' max='100' style='width:100%;' class='slider'>";
+                html += "<input id='" + entry.id + "Slider" + "' type='range' min='0' max='100' style='width:100%;' class='slider' disabled>";
             html += "</div>";
 
             html += "<div class='clear_formatting'></div-->";
@@ -68,15 +68,30 @@ alertsList.forEach(function(entry) {
 
 alertsContainer.innerHTML=html;
 
+let elementAlerts = [];
+let elementDescs = [];
 let elementSliders = [];
 let elementValues = [];
 
 alertsList.forEach(function(entry, index) {
+    elementAlerts[index] = document.getElementById(entry.id + "Alert");
+    elementDescs[index] = document.getElementById(entry.id + "Desc");
     elementSliders[index] = document.getElementById(entry.id + "Slider");
     elementValues[index]= document.getElementById(entry.id + "Value");
 
+    console.log(entry.id + "Alert");
+    elementAlerts[index].onclick = function(value) {
+        if (elementAlerts[index].checked == true) {
+            elementDescs[index].style="font-size: 20px; margin:0;";
+            elementSliders[index].disabled = false;
+        } else {
+            elementDescs[index].style="font-size: 20px; margin:0; color: #808080;";
+            elementSliders[index].disabled = true;
+        }
+    }
+
     console.log(entry.id + "Slider");
-    elementSliders[index].onclick = function(value) {
+    elementSliders[index].onchange = function(value) {
         elementValues[index].innerHTML = elementSliders[index].value;
     }
 });
