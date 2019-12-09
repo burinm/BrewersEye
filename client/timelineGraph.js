@@ -178,8 +178,10 @@ function getNewTimelineData(p) {
 
                         let average_bpm = 0;
                         if (average_count > 0) {
-                            average_bpm = average_total / average_count;
-                            average_bpm = Math.round(average_bpm / 10);
+                            //average_bpm = average_total / average_count;
+                            //average_bpm = Math.round(average_bpm / 10);
+
+                            average_bpm = Math.round(average_total / 60); //bubbles over an hour
                         }
 
                         console.log("avg count " + average_count + " avg=" + average_bpm);
