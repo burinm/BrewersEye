@@ -116,4 +116,22 @@ alertsList.forEach(function(entry, index) {
         </p>
 */
 
+let testEmail = document.getElementById("testEmail");
+let emailAddress = document.getElementById("emailAddress");
 
+testEmail.onclick = (function() {
+    let destination=emailAddress.innerHTML;
+    let subject="Brewers's eye test message - " + new Date();
+    let message="This is a test email from the Brewer's Eye App \n Have fun!";
+
+    let queryString="./email?destination=" + destination + "&subject=" + subject + "&message=" + message;
+    jQuery.getJSON(queryString, function(ret, status) {
+        if (status == "success") {
+            if (ret['error'] == 200) {
+               console.log("Sent!");
+            } else {
+               console.log("Error:" + ret['error']);
+            }
+        }
+    });
+});
