@@ -25,7 +25,7 @@ mariadb-server\
 tornado
 
 **Javascript libraries are already included in Subprojects**\
-vis (version 6.2.9)
+vis (version 6.2.9)\
 jqeury (version 3.4.1)
 
 # Installation Instructions
@@ -58,7 +58,7 @@ $ sudo mysql (Yeah, there's a problem with using our root login)
     FLUSH PRIVILEGES;
 ```
 
-**Setup Project1 database and tables**
+**Setup node database and tables**
 
 ```sh
 $ mysql -u sensors --password=password
@@ -110,17 +110,18 @@ $ cd BrewersEye
 
 ```
 
-**Run**\
-Sensors array
+**Run - sensors array**\
 ```sh
 systemctl start bubbles
 ```
 
-Gateway
+**Run - gateway**\
 ```sh
-nohup ./receive.py&
+nohup ./receive.py &
 (optional) tail -f nohup.out
+
+./webserver.py
 ```
 
 Point your web browser to 172.16.0.1:8080\
-(additionally you may need to modify sensor.py if this address doesn't fit your network.
+(additionally you may need to modify webserver.py if this address doesn't fit your network)
