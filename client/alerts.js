@@ -50,16 +50,16 @@ alertsList.forEach(function(entry) {
             html += "</div>";
 
             html += "<div style='float:left; width:40%'>";
-                html += "<p id='" + entry.id + "Desc" + "' style='font-size: 20px; margin:0; color: #808080;'>" + entry.desc + "</p>";
+                html += "<p id='" + entry.id + "Desc" + "' class='greyedOut'>" + entry.desc + "</p>";
             html += "</div>";
 
             html += "<div style='float:left; width:5%'>";
                 let value = 0;
-                html += "<p id ='" + entry.id + "Value" + "' style='font-size: 20px; margin:0;'>" + value + "</p>";
+                html += "<p id ='" + entry.id + "Value" + "' class='greyedOut'>" + value + "</p>";
             html += "</div>";
 
             html += "<div style='float:left; width:50%'>";
-                html += "<input id='" + entry.id + "Slider" + "' type='range' min='0' max='100' style='width:100%;' class='slider' disabled>";
+                html += "<input id='" + entry.id + "Slider" + "' type='range' min='0' max='100';' class='slider sliderOff' disabled>";
             html += "</div>";
 
             html += "<div class='clear_formatting'></div-->";
@@ -82,10 +82,14 @@ alertsList.forEach(function(entry, index) {
     console.log(entry.id + "Alert");
     elementAlerts[index].onclick = function(value) {
         if (elementAlerts[index].checked == true) {
-            elementDescs[index].style="font-size: 20px; margin:0;";
+            elementDescs[index].className = "turnedOn";
+            elementValues[index].className = "turnedOn";
+            elementSliders[index].className = "slider sliderOn";
             elementSliders[index].disabled = false;
         } else {
-            elementDescs[index].style="font-size: 20px; margin:0; color: #808080;";
+            elementDescs[index].className = "greyedOut";
+            elementValues[index].className = "greyedOut";
+            elementSliders[index].className = "slider sliderOff";
             elementSliders[index].disabled = true;
         }
     }

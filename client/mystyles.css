@@ -7,6 +7,11 @@
     [component][component]
     </div>
 */
+
+/* How to make <--left   --> right alignment
+    https://stackoverflow.com/questions/29580266/align-two-divs-horizontally-one-on-extreme-left-and-the-other-on-extreme-right
+*/
+
 div.inline_block {
     display: inline-block;
 }
@@ -16,6 +21,50 @@ div.clear_formatting {
     clear: both;
 }
 
-div#debug_panel {
-    overflow: auto;
+.greyedOut {
+    font-size: 20px;
+    margin:0;
+    color: #808080;
+    opacity: .5;
+}
+
+.turnedOn {
+    font-size: 20px;
+    margin:0;
+}
+
+.sliderOff {
+    font-size: 20px;
+    margin:0;
+    color: #808080;
+    opacity: .5;
+    width: 100%;
+}
+
+.sliderOn {
+    font-size: 20px;
+    margin:0;
+    width: 100%;
+}
+
+div.farleft {
+    float: left;
+}
+
+div.farright {
+    float: right;
+}
+
+div.middle {
+    float: middle;
+}
+
+.outputDisplay {
+    font-size: 30px;
+    margin: 0; //No space between <p> tags
+}
+
+.outputSmallDisplay {
+    font-size: 20px;
+    margin: 0; //No space between <p> tags
 }
