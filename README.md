@@ -110,12 +110,12 @@ $ cd BrewersEye
 
 ```
 
-**Run - sensors array**\
+**Run - sensors array**
 ```sh
 systemctl start bubbles
 ```
 
-**Run - gateway**\
+**Run - gateway**
 ```sh
 nohup ./receive.py &
 (optional) tail -f nohup.out
