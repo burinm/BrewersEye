@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from db import db_get_sensor1_entries_by_date, db_get_sensor2_entries_by_date, db_get_bubbles_entries_by_date, \
                 db_get_last_sensor1_entries, db_get_last_sensor2_entries, db_get_last_bubble_entries
 
+from sendmail import sendMessage
+
 import threading
 import signal
 
@@ -137,6 +139,27 @@ class LatestHandler(tornado.web.RequestHandler):
         self.write(json.dumps(results))
 
 
+class EmailHandler(tornado.web.RequestHandler):
+    """ Returns sensor1 temperature list in JSON string
+            <destination> = "To:" email address
+            <subject> =  "Subject:" in plain text
+            <message> =  message body in plain text
+    """
+    def get(self):
+
+        destination = self.get_query_argument("destination", None)
+        subject = self.get_query_argument("subject", None)
+        message = self.get_query_argument("message", None)
+
+        if destination is None or subject is None or message is None:
+            self.write(json.dumps({'error': 400}))
+            return
+
+        # Send message
+        tornado.ioloop.IOLoop.current().spawn_callback(sendMessage, destination, subject, message)
+        self.write(json.dumps({'error': 200}))
+
+
 def ctrl_c(signum, frame):
     """ Exit gracefully """
     print("Stopped by user")
@@ -177,6 +200,7 @@ def make_app():
         (r"/sensor2", Sensor2Handler),
         (r"/bubbles", BubbleHandler),
         (r"/latest", LatestHandler),
+        (r"/email", EmailHandler),
         (r"/(.*)", fixStaticFileHandler, {'path': "./client"})
      ], **settings)
 
