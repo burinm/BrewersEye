@@ -91,63 +91,65 @@ function updateStatistics() {
     });
 
     let alert_messages = [];
+    let alertsEnabledCount = 0;
 
     // https://theshravan.net/blog/storing-json-objects-in-html5-local-storage/
     let jsonString = localStorage.getItem('alertsList');
-    let alertsCurrent = JSON.parse(jsonString);
-    let alertsEnabledCount = 0;
-    console.log(alertsCurrent);
+    if (jsonString != null) {
 
-    //Check for any alerts if they are turned on
+        let alertsCurrent = JSON.parse(jsonString);
+        console.log(alertsCurrent);
 
-    alertsCurrent.forEach(function(item) {
-        if (item.on == true) {
-            alertsEnabledCount += 1;
+        //Check for any alerts if they are turned on
+        alertsCurrent.forEach(function(item) {
+            if (item.on == true) {
+                alertsEnabledCount += 1;
 
-            // Ambient temperature alerts
-            if (item.id == "maxAmbientTemperatureAlert") {
-                if (latest_ambient_temp !== undefined) {
-                    if (latest_ambient_temp >= item.constraint) {
-                        alert_messages.push( { 'message': "Ambient temperature rose above", 'constraint':item.constraint, 'value':latest_ambient_temp } );
+                // Ambient temperature alerts
+                if (item.id == "maxAmbientTemperatureAlert") {
+                    if (latest_ambient_temp !== undefined) {
+                        if (latest_ambient_temp >= item.constraint) {
+                            alert_messages.push( { 'message': "Ambient temperature rose above", 'constraint':item.constraint, 'value':latest_ambient_temp } );
+                        }
+                    }
+                }
+
+                if (item.id == "minAmbientTemperatureAlert") {
+                    if (latest_ambient_temp !== undefined) {
+                        if (latest_ambient_temp <= item.constraint) {
+                            alert_messages.push( { 'message': "Ambient temperature fell below", 'constraint':item.constraint, 'value':latest_ambient_temp } );
+                        }
+                    }
+                }
+
+                // Fermenter temperature alerts
+                if (item.id == "maxFermenterTemperatureAlert") {
+                    if (latest_fermentation_temp !== undefined) {
+                        if (latest_fermentation_temp >= item.constraint) {
+                            alert_messages.push( { 'message': "Fermenter temperature rose above", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
+                        }
+                    }
+                }
+
+                if (item.id == "minFermenterTemperatureAlert") {
+                    if (latest_fermentation_temp !== undefined) {
+                        if (latest_fermentation_temp <= item.constraint) {
+                            alert_messages.push( { 'message': "Fermenter temperature fell below", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
+                        }
+                    }
+                }
+
+                // Bubble average alerts
+                if (item.id == "maxBubblesAlert") {
+                    if (latest_bubbles_avg !== undefined) {
+                        if (latest_bubbles_avg >= item.constraint) {
+                            alert_messages.push( { 'message': "Average bubble per minute (bmp) exceeded", 'constraint':item.constraint, 'value':latest_bubbles_avg } );
+                        }
                     }
                 }
             }
-
-            if (item.id == "minAmbientTemperatureAlert") {
-                if (latest_ambient_temp !== undefined) {
-                    if (latest_ambient_temp <= item.constraint) {
-                        alert_messages.push( { 'message': "Ambient temperature fell below", 'constraint':item.constraint, 'value':latest_ambient_temp } );
-                    }
-                }
-            }
-
-            // Fermenter temperature alerts
-            if (item.id == "maxFermenterTemperatureAlert") {
-                if (latest_fermentation_temp !== undefined) {
-                    if (latest_fermentation_temp >= item.constraint) {
-                        alert_messages.push( { 'message': "Fermenter temperature rose above", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
-                    }
-                }
-            }
-
-            if (item.id == "minFermenterTemperatureAlert") {
-                if (latest_fermentation_temp !== undefined) {
-                    if (latest_fermentation_temp <= item.constraint) {
-                        alert_messages.push( { 'message': "Fermenter temperature fell below", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
-                    }
-                }
-            }
-
-            // Bubble average alerts
-            if (item.id == "maxBubblesAlert") {
-                if (latest_bubbles_avg !== undefined) {
-                    if (latest_bubbles_avg >= item.constraint) {
-                        alert_messages.push( { 'message': "Average bubble per minute (bmp) exceeded", 'constraint':item.constraint, 'value':latest_bubbles_avg } );
-                    }
-                }
-            }
-        }
-    });
+        });
+    }
 
     let newHtml = "";
     let currentDate = formatDate(new Date());

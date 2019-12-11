@@ -43,11 +43,10 @@ let html = "";
 
 //Check for already stored alerts list
 let jsonString = localStorage.getItem('alertsList');
-if (jsonString !== undefined) {
+if (jsonString !== null) {
     console.log("Loading alerts list from local storage");
     alertsList = JSON.parse(jsonString);
 }
-
 
 alertsList.forEach(function(entry) {
     html += "<p>";
