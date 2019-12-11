@@ -203,9 +203,11 @@ function getNewTimelineData(p) {
                             timeline_item['group'] = 0; //TODO make timeline ENUM
                             timeline_item['style'] = "color:purple; border-color: purple; background-color: white;";
                             dataset2.add(timeline_item);
-                        //Graph2d
+                        /*Graph2d
+                        */
                             let item = {};
                             item['x'] = first_entry.timestamp; //Only entering on the hour
+                            //Scale to fit on graph
                             average_bpm = Math.round(average_bpm / 5);
                             item['y'] = average_bpm.toString();
                             item['group'] = sensorEnum.BUBBLES_AVG; //TODO make timeline ENUM
@@ -294,6 +296,8 @@ groups.add(
 groups.add(
  {
     id: sensorEnum.BUBBLES_AVG,
+    /* There must be a bug, this gets assigned as vis-graph-group0 */
+    className: "vis-graph-group2",
     style: 'line',
     options: {
         drawPoints: {
