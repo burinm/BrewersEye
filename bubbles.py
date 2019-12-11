@@ -6,9 +6,12 @@
     An interrupt on low fires a timer 25 milli-seconds later. If
     the pin is still low, we count it as a bubble
 
+    Update:
+        Debounce was taken out. Active low events are reported
+        immediately.
+
     Input from the sensor is sent through an op-amp chain that:
-        0) Takes the signal's derivative (DC blocking capacitor)
-        1) High pass (.72Hz)
+        1) Takes the signal's derivative (DC blocking capacitor) / High pass (.72Hz)
         2) Low pass (3.4Hz) and gain x101
         3) High pass (.72Hz)
         4) Low pass (3.4Hz) and gain x101
@@ -24,7 +27,7 @@
 
     Low Pass
         f Hz (cutoff) = 1 / (2Pi * R * C)
-        R = 470K, C q 100 nF, f(cutoff) = 3.4Hz (.295 seconds)
+        R = 470K, C = 100 nF, f(cutoff) = 3.4Hz (.295 seconds)
 
     This means (in thoery) that any change in LED intensity
     that isn't at least .295 seconds long, and isn't longer
@@ -33,7 +36,7 @@
 
 """
 
-import threading
+# import threading
 import board as BOARD
 import RPi.GPIO as GPIO
 from typing import Callable

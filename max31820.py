@@ -2,7 +2,7 @@
 """
     Read a max32820/DS18B20 1-wire temperature sensor
 
-    *NOTE* - max3820 datasheet and  "+" on device are wrong!
+    *NOTE* - max32820 datasheet and  "+" on device are wrong!
       (gets really hot if hooked up backwards)
 
 

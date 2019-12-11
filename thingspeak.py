@@ -3,6 +3,9 @@
 """ Base code taken from mathworks tutorial
         https://www.mathworks.com/help/thingspeak/use-raspberry-pi-board-that-runs-python-websockets-to-publish-to-a-channel.html
 
+    This code was used for initial testing of Thingspeak,
+    but was replaced by the "thingspeak" MQTT client
+    in the final version
 """
 
 from __future__ import print_function
