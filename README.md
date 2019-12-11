@@ -1,6 +1,8 @@
 # BrewersEye
 Homebrew remote sensor array
 
+![Output waveform](hardware.png?raw=true "Fermenter hooked up to Sensor arryay")
+
 
 #### Developed by: Micheal Burin
 A simple sensor array that transmits temperature and bubble rates via Zigbee
