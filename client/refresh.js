@@ -1,3 +1,16 @@
+/* refresh.js - Periodically update stats and check for alerts
+    burin - (c) 2019
+
+    updateStatistics() is run every 10 seconds to poll the database
+    for new data. Data is displayed and checked against a list of
+    alert contraints.
+
+    Currently alerts are just posted to an error box at the bottom
+    of the web page
+
+    Polling data is also added to the graph
+    TODO: bubble averages are not updated in graph/timeline
+*/
 "using strict";
 
 import {graphAddItem, sensorEnum, formatDate} from "./timelineGraph.js";
@@ -10,19 +23,18 @@ let bubbleRate = document.getElementById("bubbleRate");
 let statusField = document.getElementById("statusField");
 statusField.innerHTML="No current alerts";
 
-//For alerts, local latest results
+//Keep track of latest poll for alerts
 let latest_fermentation_temp = undefined;
 let latest_ambient_temp = undefined;
 let latest_bubbles_avg = undefined;
 
+/* Stats at top of webpage */
 function updateStatistics() {
-
-
 
     let queryString = "./latest";
     jQuery.getJSON(queryString, function(all_stats, status) {
         if (status == "success") {
-            //console.log(all_stats);
+            console.log(all_stats);
             if (all_stats.sensor1 !== undefined) {
                 all_stats.sensor1.entries.forEach(function(entry) {
                     fermentationTemperature.innerHTML="<p style='margin:0;'>"
@@ -34,8 +46,6 @@ function updateStatistics() {
                     graphAddItem(entry.temperature, entry.timestamp, sensorEnum.FERMENTER_TEMP, entry.index);
                     latest_fermentation_temp = entry.temperature;
                 });
-
-
             }
 
             if (all_stats.sensor2 !== undefined) {
@@ -49,8 +59,6 @@ function updateStatistics() {
                     graphAddItem(entry.temperature, entry.timestamp, sensorEnum.AMBIENT_TEMP, entry.index);
                     latest_ambient_temp = entry.temperature;
                 });
-
-
             }
 
             let average_count = 0;
@@ -70,7 +78,6 @@ function updateStatistics() {
                 });
             }
 
-
             if (average_count > 0) {
                 let timeDiff = new Date(latest_time).getTime()/1000 - new Date(earliest_time).getTime()/1000;
                 timeDiff = timeDiff / 60; //Seconds to minutes
@@ -81,15 +88,16 @@ function updateStatistics() {
                         + "<span style='font-size:15px;'>bpm</span>"
                         + "</p>";
 
+                // TODO - update graph/timeline with bubbles average
+
                 latest_bubbles_avg = rate;
             }
-
-            
         } else {
             console.log("Jquery failed to get sensor2 information");
         }
     });
 
+    /* Go through alert list and check for violations */
     let alert_messages = [];
     let alertsEnabledCount = 0;
 
@@ -100,7 +108,7 @@ function updateStatistics() {
         let alertsCurrent = JSON.parse(jsonString);
         console.log(alertsCurrent);
 
-        //Check for any alerts if they are turned on
+        //Check for any alerts only if they are turned on
         alertsCurrent.forEach(function(item) {
             if (item.on == true) {
                 alertsEnabledCount += 1;
@@ -151,6 +159,7 @@ function updateStatistics() {
         });
     }
 
+    /* Update status bar with ok/alerts */
     let newHtml = "";
     let currentDate = formatDate(new Date());
 

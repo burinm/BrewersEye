@@ -39,6 +39,7 @@ class TypeKReader:
             print("Type-k read failed:{0}".format(e))
             return [ERROR, None]
 
+
 """ Test
 import time
 print('Temperature: {} degrees C'.format(max31855.temperature))

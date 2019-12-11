@@ -1,3 +1,11 @@
+/* bubble.js
+    buriin - (c) 2019
+
+    Draw a bubble animation on a html5 canvas!
+
+    TODO: adjust rising rate to match bpm
+*/
+
 "use strict";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Basic_usage
@@ -21,17 +29,19 @@ class bubbleGlobals {
 window.setTimeout(moveBubble, 250);
 
 
-//setTimeout(moveBubble, 2000);
+//setTimeout(moveBubble, 2000); - this doesn't work, jerky motion
 setInterval(moveBubble, 100);
 
 function moveBubble() {
     ctx.clearRect(0, 0, bubbleCanvas.width, bubbleCanvas.height);
+    // Undo previous drawing - wasn't working
     //drawBubble(bubbleGlobals.old_radius, bubbleGlobals.old_y, bubbleGlobals.old_x, true);
     //drawBubble(5, bubbleGlobals.x, bubbleGlobals.y, true);
 
     bubbleGlobals.y = bubbleGlobals.y - bubbleGlobals.y_speed;
     bubbleGlobals.y_speed += .1;
 
+    // Bubble is at top, reset
     if (bubbleGlobals.y < -5) {
         bubbleGlobals.y = bubbleCanvas.height;
         bubbleGlobals.y_speed = 1;
@@ -41,11 +51,11 @@ function moveBubble() {
     let direction = Math.random() * 2 - 1;
     bubbleGlobals.x = bubbleGlobals.x + direction; 
     drawBubble(5, bubbleGlobals.x, bubbleGlobals.y);
+    // Undo previous drawing - wasn't working
     //bubbleGlobals.old_radius = 5;
     //bubbleGlobals.old_x = x;
     //bubbleGlobals.old_y = y;
 }
-
 
 function drawBubble(radius, x, y, reverse = false) {
     ctx.beginPath();
@@ -58,4 +68,3 @@ function drawBubble(radius, x, y, reverse = false) {
     }
     ctx.stroke();
 }
-

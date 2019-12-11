@@ -1,7 +1,10 @@
 #!/usr/bin/env  python3
 
-# Using the template from here:
-# https://docs.python.org/3/library/email.examples.html#email-examples
+""" sendmail.py - Send an html message with smtplib
+
+    Used the template from here:
+        https://docs.python.org/3/library/email.examples.html#email-examples
+"""
 
 import smtplib
 from email.mime.text import MIMEText

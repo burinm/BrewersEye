@@ -1,3 +1,20 @@
+/* alerts.js
+    burin - (c) 2019
+
+    Data structure that represents both the widgets
+    on the alerts.html page and the alert constraints
+
+    At the moment, localStorage is used to save the
+    alerts to disk (like cookies)
+
+    TODO: move alerts peristant storage to database
+
+    Widgets are dynamically created and assigned from
+    the alertsList structure. This means that in future
+    versions, new alert types can be dynamically added to
+    the alerts.html page and be activated.
+
+*/
 "use strict";
 
 let submitAlerts = document.getElementById("submitAlerts");
@@ -48,6 +65,23 @@ if (jsonString !== null) {
     alertsList = JSON.parse(jsonString);
 }
 
+/*
+<!--Template for code reference below-->
+        <p>
+            <div style="float:left; width:5%">
+                <input id="maxAmbientTemperatureAlert" type="checkbox">
+            </div>
+            <div style="float:left; width:45%">
+                <p style="font-size: 20px; margin:0;">Ambient temperature rises over X degrees C</p>
+            </div>
+            <div style="float:left; width:50%">
+                <input id="maxAmbientTemperature" type="range" min="0" max="100" style="width:100%;" class="slider">
+            </div>
+            <div class="clear_formatting"></div-->
+        </p>
+*/
+
+//Draw widgets
 alertsList.forEach(function(entry) {
     html += "<p>";
 
@@ -93,6 +127,9 @@ function disableAlertElement(index) {
     elementSliders[index].disabled = true;
 }
 
+/* Fill up lists to keep track of widgets
+   Fill with values in alertsList
+*/
 alertsList.forEach(function(entry, index) {
     console.log("Initializing:" + entry.id);
 
@@ -104,13 +141,14 @@ alertsList.forEach(function(entry, index) {
     elementAlerts[index].checked = alertsList[index].on;
     elementSliders[index].value = alertsList[index].constraint;
     elementValues[index].innerHTML = alertsList[index].constraint;
+
     if (alertsList[index].on == true) {
         enableAlertElement(index);
     } else {
         disableAlertElement(index);
     }
 
-
+    /* checkbox event */
     elementAlerts[index].onclick = function(value) {
         if (elementAlerts[index].checked == true) {
             enableAlertElement(index);
@@ -125,7 +163,7 @@ alertsList.forEach(function(entry, index) {
         }
     }
 
-    console.log(entry.id + "Slider");
+    /* slider event */
     elementSliders[index].onchange = function(value) {
         elementValues[index].innerHTML = elementSliders[index].value;
         alertsPageStatus.innerHTML = "changed";
@@ -135,23 +173,7 @@ alertsList.forEach(function(entry, index) {
     }
 });
 
-/*
-<!--Template-->
-        <p>
-            <div style="float:left; width:5%">
-                <input id="maxAmbientTemperatureAlert" type="checkbox">          
-            </div>
-            <div style="float:left; width:45%">
-                <p style="font-size: 20px; margin:0;">Ambient temperature rises over X degrees C</p>
-            </div>
-            <div style="float:left; width:50%">
-                <input id="maxAmbientTemperature" type="range" min="0" max="100" style="width:100%;" class="slider">
-            </div>
-            <div class="clear_formatting"></div-->
-        </p>
-*/
-
-
+/* Save changed values to persistant storage */
 submitAlerts.onclick = (function() {
     let jsonString = JSON.stringify(alertsList);
     console.log("Saving: " + jsonString);
@@ -160,6 +182,7 @@ submitAlerts.onclick = (function() {
     alertsPageStatus.innerHTML = "Current Settings (saved)"
 });
 
+/* Setup test email values */
 let testEmail = document.getElementById("testEmail");
 let emailAddress = document.getElementById("emailAddress");
 
@@ -186,6 +209,7 @@ testEmail.onclick = (function() {
     message += "<p><p>Have Fun!";
     message += "</html>";
 
+    /* Send email through tonrnado API */
     let queryString="./email?destination=" + destination + "&subject=" + subject + "&message=" + message;
     jQuery.getJSON(queryString, function(ret, status) {
         if (status == "success") {

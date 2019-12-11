@@ -1,5 +1,17 @@
 #!/usr/bin/env  python3
 
+""" driver.py - Sensor array main driver
+        burin (c) 2019
+
+    Polls temperature and bubble sensors
+    and sends messages over Zigbee to gateway
+
+    Currently node# is hardcoded:
+        MY_NODE = 88
+
+    Currently polls every 5 seconds
+"""
+
 import sys
 import signal
 from enum import IntEnum

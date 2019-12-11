@@ -1,11 +1,14 @@
-/* mystyles.css - pairs with index.html
+/* mystyles.css
 
-    The only style used here is to put components
-    side-by-side in a <div> tag
+    burin (c) 2019
 
-    <div>
-    [component][component]
-    </div>
+    Note:
+        This style used to put components
+        side-by-side in a <div> tag
+
+        <div>
+        [component][component]
+        </div>
 */
 
 /* How to make <--left   --> right alignment

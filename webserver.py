@@ -1,5 +1,32 @@
 #!/usr/bin/env python3
 """ tornado.py: Tornado webserver for Brewer's Eye database viewing
+        burin (c) 2019
+
+    APIS:
+      /sensor1 -  Returns sensor1 temperature list in JSON string
+            <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <mod> =   skip every nth entry
+
+      /sensor2 -  Returns sensor2 temperature list in JSON string
+            <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <mod> =   skip every nth entry
+
+      /bubbles -  Returns bubbles list in JSON string
+            <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
+            <mod> =   skip every nth entry
+
+      /latest - Returns sensor1, sensor2 latest temperature, and 10 last bubble averages
+            in JSON string
+
+            (no arguments)
+
+      /email  - Sends email
+            <destination> = "To:" email address
+            <subject> =  "Subject:" in plain text
+            <message> =  message body in html
 
 """
 
@@ -84,7 +111,7 @@ class Sensor2Handler(tornado.web.RequestHandler):
 
 
 class BubbleHandler(tornado.web.RequestHandler):
-    """ Returns sensor1 temperature list in JSON string
+    """ Returns bubbles list in JSON string
             <start> = beginning date in [YY-MM-DD HH-MM-SS.mmmmmm] format
             <end> =   ending date in    [YY-MM-DD HH-MM-SS.mmmmmm] format
             <mod> =   skip every nth entry
@@ -140,7 +167,7 @@ class LatestHandler(tornado.web.RequestHandler):
 
 
 class EmailHandler(tornado.web.RequestHandler):
-    """ Returns sensor1 temperature list in JSON string
+    """ Send an html email
             <destination> = "To:" email address
             <subject> =  "Subject:" in plain text
             <message> =  message body in plain text

@@ -1,11 +1,36 @@
+/* timelineGraph.js - Query data from mySQL and fill in chart
+    burin (c) 2019
+
+    There are two displays working here, a graph2d and a timeline.
+    graph 2d is filled out with ambient, fermentation, and bubble data.
+    Timeline is also filled out with bubble data and custom events.
+
+    There is an attempt to cache the data lookups by marking their
+    unique index in an array as visited. This keeps us from loading
+    the data twiced into the graph/timeline.
+
+    TODO: This, however, needs to be changed for the bubble lookup,
+    because it is still querying the database, even if it already
+    has the data (perhaps purge bubble data, and only ever averge 10?)
+
+    Whenever a graph event occurs, the timeframe of the current
+    display is sent. The current strategy is to divide the timeline
+    into reasonable sized pieces for that resolution and use the "mod"
+    modifier in mySQL to only return each nth piece.
+
+    This strategy works well for zooming out.
+
+    To try and display the bubble data, data is only queried on
+    the hour, and the last hour's worth of data is retrieved to
+    calculate an average.
+*/
+
 "use strict";
 
-let d = document;
-let body = d.body;
+let graph2dContainer = document.getElementById("graph2dGraph");
+let timelineContainer = document.getElementById("timelineGraph");
 
-let graph2dContainer = d.getElementById("graph2dGraph");
-let timelineContainer = d.getElementById("timelineGraph");
-
+//Represents group in the graph object, and the cache index
 const sensorEnum = {
     FERMENTER_TEMP: 0,
     AMBIENT_TEMP: 1,
@@ -13,21 +38,23 @@ const sensorEnum = {
 }
 
 class globals {
-    //Set if we've fetched this data already
+    /* Set if we've fetched this data already
+            2d array - [group][index]
+    */
     static sensor_cache = [];
 }
 
-
-
+//Helper to add an item to the graph2d object
 function graphAddItem(value, timestamp, group, index) {
     let item = {};
-    item['x'] = timestamp 
+    item['x'] = timestamp;
     item['y'] = value;
     item['group'] = group;
-    dataset.add(item);
+    dataset.add([item]);
     globals.sensor_cache[group][index] = 1;
 }
 
+//Helper to format the date as mySQL requires in queries
 function formatDate(d) {
 
 // Javascript is wierd, January = 0, December = 11
@@ -45,17 +72,24 @@ let displayDate =   d.getFullYear() + "-" +
 return displayDate;
 }
 
+//Over a timeframe, find the amount to skip over so that queries will be fast
 function getTimeMod(start, end) {
+
     //Get time window in seconds
     let timeDiff = Math.round((end.getTime()/1000) - (start.getTime()/1000));
+
+    /* Eyeballed this when zooming out the graph, and from the data density.
+        timeMod = ~250 entries retrieved
+    */
     let timeMod = Math.ceil(timeDiff / 400 * .3);
     console.log("Timeframe is", timeDiff, "seconds, TimeMod is every ", timeMod, "th entry");
 return timeMod;
 }
 
+// Given a timerange, fill graph2d with data from mySQL
 function getNewTimeRangeData (p) {
-    console.log(formatDate(p.start));
-    console.log(formatDate(p.end));
+    //console.log(formatDate(p.start));
+    //console.log(formatDate(p.end));
 
     if (p.manual === undefined) {
         //Update timeline graph data too
@@ -65,15 +99,15 @@ function getNewTimeRangeData (p) {
     }
 
     let timeMod = getTimeMod(p.start, p.end);
-
     let start = formatDate(p.start);
     let end = formatDate(p.end);
 
+    /* sensor 1 fetch - fermenter temperature */
     let queryString = "./sensor1?start=" + start + "&end=" + end + "&mod=" + timeMod;
     jQuery.getJSON(queryString, function(sensor1_data, status) {
         if (status == "success") {
-            //console.log(sensor1_data);
             let items = [];
+            console.log("returned " +  sensor1_data.sensor1.length + " sensor1 entries");
             sensor1_data.sensor1.forEach(function(entry) {
                 if (globals.sensor_cache[sensorEnum.FERMENTER_TEMP][entry.index] === undefined) {
                     globals.sensor_cache[sensorEnum.FERMENTER_TEMP][entry.index] = 1;
@@ -84,19 +118,18 @@ function getNewTimeRangeData (p) {
                     item['y'] = entry.temperature;
                     item['group'] = sensorEnum.FERMENTER_TEMP;
                     items.push(item);
-                    //console.log(item);
                 }
             });
             if (items.length > 0) {
                 dataset.add(items);
             }
-            //console.log(dataset);
-            items.length=0; //Tell javascript we are done with this
+            items.length=0; //Tell javascript we are done with this?
         } else {
             console.log("Jquery failed to get sensor1 information");
         }
     });
 
+    /* sensor 2 fetch  - ambient temperature */
     queryString = "./sensor2?start=" + start + "&end=" + end + "&mod=" + timeMod;
     jQuery.getJSON(queryString, function(sensor2_data, status) {
         if (status == "success") {
@@ -123,9 +156,12 @@ function getNewTimeRangeData (p) {
     });
 }
 
+/* Given a timerange, fill timeline with bubble averages on the hour,
+    also put bubble averages into graph2d
+*/
 function getNewTimelineData(p) {
-    console.log(formatDate(p.start));
-    console.log(formatDate(p.end));
+    //console.log(formatDate(p.start));
+    //console.log(formatDate(p.end));
 
     if (p.manual === undefined) {
         //Update temperarute graph data too
@@ -154,17 +190,21 @@ function getNewTimelineData(p) {
     let timeMod = Math.ceil(getTimeMod(p.start, p.end) / 100);
     console.log("Bubble timeMod=" + timeMod);
     let debugger_count = 0;
+    let actual_query_count = 0;
     for (let chunk = start_nearest_hour.getTime(); chunk < p.end.getTime(); chunk += an_hour) {
         debugger_count += 1;
-        //if (debugger_count > 100) break;
+
+        // TODO - this is just a performance hack for Demo, fix caching
+        if (actual_query_count > 25) break;
 
         //Timemod is used here to grab every nth hour
         if (debugger_count % timeMod == 0) {
+            actual_query_count += 1;
 
             let chunk_date = formatDate(new Date(chunk));
             let end_date = formatDate(new Date(chunk + an_hour));
 
-            console.log("->" + chunk_date + "," + end_date);
+            //console.log("->" + chunk_date + "," + end_date);
 
             //Gather all the values over this hour
             let queryString = "./bubbles?start=" + chunk_date + "&end=" + end_date + "&mod=1";
@@ -184,16 +224,10 @@ function getNewTimelineData(p) {
                                 average_count += 1;
                             });
 
-
                             let average_bpm = 0;
                             if (average_count > 0) {
-                                //average_bpm = average_total / average_count;
-                                //average_bpm = Math.round(average_bpm / 10);
-
                                 average_bpm = Math.round(average_total / 60); //bubbles over an hour
                             }
-
-                            console.log("avg count " + average_count + " avg=" + average_bpm);
 
                         /* timeline
                         */
@@ -203,11 +237,11 @@ function getNewTimelineData(p) {
                             timeline_item['group'] = 0; //TODO make timeline ENUM
                             timeline_item['style'] = "color:purple; border-color: purple; background-color: white;";
                             dataset2.add(timeline_item);
-                        /*Graph2d
+                        /* graph2d
                         */
                             let item = {};
                             item['x'] = first_entry.timestamp; //Only entering on the hour
-                            //Scale to fit on graph
+                            //TODO for now, scale to fit on graph
                             average_bpm = Math.round(average_bpm / 5);
                             item['y'] = average_bpm.toString();
                             item['group'] = sensorEnum.BUBBLES_AVG; //TODO make timeline ENUM
@@ -221,14 +255,17 @@ function getNewTimelineData(p) {
             });
         }
     }
-
+    console.log("Bubbles average made " + actual_query_count + " queries to the database");
 }
 
-//Setup caches
+/* Main code starts here */
+
+/* Setup caches */
 globals.sensor_cache[sensorEnum.FERMENTER_TEMP] = new Object;
 globals.sensor_cache[sensorEnum.AMBIENT_TEMP] = new Object;
 globals.sensor_cache[sensorEnum.BUBBLES_AVG] = new Object;
 
+/* For reference, log current timeframe */
 let now_date = Date.now();
 let eightHours = (60 * 60 * 8) * 1000;
 let start_date = new Date(now_date - eightHours);
@@ -237,8 +274,10 @@ let end_date = new Date(now_date);
 console.log("Start charts at:", start_date);
 console.log("End charts at:", end_date);
 
-/* graph2d - example setup code
-    https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
+/* setup main display graph
+
+    graph2d - example setup code
+        https://visjs.github.io/vis-timeline/examples/graph2d/01_basic.html
 */
 let dataset = new vis.DataSet();
 
@@ -262,7 +301,6 @@ let options = {
     showMinorLabels: false,
     // legend: true
 };
-
 
 let graph2d = new vis.Graph2d(graph2dContainer, dataset, options);
 
@@ -309,10 +347,11 @@ groups.add(
 );
 
 graph2d.setGroups(groups);
-
 graph2d.on('rangechanged', getNewTimeRangeData);
 
-/* Timeline - https://almende.github.io/vis/docs/timeline/
+/* Setup timeline graph
+
+    Timeline - https://almende.github.io/vis/docs/timeline/
 */
 
 let dataset2 = new vis.DataSet();
@@ -364,9 +403,9 @@ let options2 = {
 
 let timeline = new vis.Timeline(timelineContainer, dataset2, options2);
 
-let groups2 = new vis.DataSet();
+let timelineGroups = new vis.DataSet();
 
-groups2.add(
+timelineGroups.add(
  { id: 0, content: '<p style="margin: 0;">Bubble</p> \
                     <p style="margin: 0;">avg</p>',
    visible: true,
@@ -374,13 +413,13 @@ groups2.add(
  }
 );
 
-groups2.add(
+timelineGroups.add(
  { id: 1, content: 'Events&nbsp;', // nbsp hack to set column width
    visible: true,
  }
 );
 
-timeline.setGroups(groups2);
+timeline.setGroups(timelineGroups);
 timeline.on('rangechanged', getNewTimelineData);
 timeline.on('select', function(items, event){
     console.log(items);
