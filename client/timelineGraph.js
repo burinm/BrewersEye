@@ -195,15 +195,16 @@ function getNewTimelineData(p) {
 
                             console.log("avg count " + average_count + " avg=" + average_bpm);
 
-                            let item = {};
                         /* timeline
                         */
-                            item['start'] = first_entry.timestamp; //Only entering on the hour
-                            item['content'] = average_bpm.toString();
-                            item['group'] = 0; //TODO make timeline ENUM
-                            item['style'] = "color:purple; border-color: purple; background-color: white;";
-                            dataset2.add(item);
+                            let timeline_item = {};
+                            timeline_item['start'] = first_entry.timestamp; //Only entering on the hour
+                            timeline_item['content'] = average_bpm.toString();
+                            timeline_item['group'] = 0; //TODO make timeline ENUM
+                            timeline_item['style'] = "color:purple; border-color: purple; background-color: white;";
+                            dataset2.add(timeline_item);
                         //Graph2d
+                            let item = {};
                             item['x'] = first_entry.timestamp; //Only entering on the hour
                             average_bpm = Math.round(average_bpm / 5);
                             item['y'] = average_bpm.toString();
@@ -267,7 +268,7 @@ let groups = new vis.DataSet();
 groups.add(
  {
     id: sensorEnum.FERMENTER_TEMP,
-    style: 'bar',
+    style: 'line',
     options: {
         drawPoints: {
             size:5,
@@ -280,7 +281,7 @@ groups.add(
 groups.add(
  {
     id: sensorEnum.AMBIENT_TEMP,
-    style: 'bar',
+    style: 'line',
     options: {
         drawPoints: {
             size:5,
@@ -293,8 +294,7 @@ groups.add(
 groups.add(
  {
     id: sensorEnum.BUBBLES_AVG,
-    className: 'bubbleAverageClass',
-    style: 'bar',
+    style: 'line',
     options: {
         drawPoints: {
             size:5,
