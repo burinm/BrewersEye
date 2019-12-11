@@ -4,13 +4,13 @@
 # https://docs.python.org/3/library/email.examples.html#email-examples
 
 import smtplib
-from email.message import EmailMessage
+from email.mime.text import MIMEText
 
 
 def sendMessage(destination, subject, message):
     smtpserver = 'smtp.dreamhost.com'
-    msg = EmailMessage()
-    msg.set_content(message)
+    # https://docs.python.org/2/library/email-examples.html
+    msg = MIMEText(message, 'html')
 
     msg['Subject'] = subject
     msg['From'] = "alerts@stormpeak.net"
@@ -20,7 +20,8 @@ def sendMessage(destination, subject, message):
 
     try:
         s.login('alerts@stormpeak.net', 'brewerseye')
-        s.send_message(msg)
+        s.sendmail(msg['From'], msg['To'], msg.as_string())
+
     except smtplib.SMTPHeloError:
         return {'error': False, 'msg': "The server didn't reply properly to the HELO greeting"}
 

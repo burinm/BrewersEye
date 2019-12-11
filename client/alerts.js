@@ -167,7 +167,25 @@ let emailAddress = document.getElementById("emailAddress");
 testEmail.onclick = (function() {
     let destination=emailAddress.innerHTML;
     let subject="Brewers's eye test message - " + new Date();
-    let message="This is a test email from the Brewer's Eye App \n Have fun!";
+    let message="<html>";
+
+    message += "<p>This is a test email from the Brewer's Eye App";
+    if  (alertsList.length == 0) {
+        message += "<p>You have the no alerts enabled";
+    } else {
+        message += "<p>You have the following alerts enabled:";
+
+        alertsList.forEach(function(item) {
+            if (item.on) {
+                message += "<li>";
+                message += item.desc + " " + item.constraint;
+                message += "</li>";
+            }
+        });
+    }
+
+    message += "<p><p>Have Fun!";
+    message += "</html>";
 
     let queryString="./email?destination=" + destination + "&subject=" + subject + "&message=" + message;
     jQuery.getJSON(queryString, function(ret, status) {
