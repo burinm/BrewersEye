@@ -8,31 +8,31 @@ let alertsList = [
                     'on': false,
                     'id': 'maxAmbientTemperatureAlert',
                     'desc': "Ambient temperature rises over:",
-                    'value': 50
+                    'constraint': 50
                 },
                 {
                     'on': false,
                     'id': 'minAmbientTemperatureAlert',
                     'desc': "Ambient temperature falls below:",
-                    'value': 50
+                    'constraint': 50
                 },
                 {
                     'on': false,
                     'id': 'maxFermenterTemperatureAlert',
                     'desc': "Fermenter temperature rises above:",
-                    'value': 50
+                    'constraint': 50
                 },
                 {
                     'on': false,
                     'id': 'minFermenterTemperatureAlert',
                     'desc': "Fermenter temperature falls below:",
-                    'value': 50
+                    'constraint': 50
                 },
                 {
                     'on': false,
                     'id': 'maxBubblesAlert',
                     'desc': "Bubbles per minute (bpm) rise above:",
-                    'value': 50
+                    'constraint': 50
                 },
 ];
 
@@ -104,7 +104,7 @@ alertsList.forEach(function(entry, index) {
         elementValues[index].innerHTML = elementSliders[index].value;
         alertsPageStatus.innerHTML = "changed";
         console.log(typeof(value));
-        alertsList[index].value = elementSliders[index].value;
+        alertsList[index].constraint = elementSliders[index].value;
         console.log("new value set");
     }
 });

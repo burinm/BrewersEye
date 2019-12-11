@@ -70,6 +70,6 @@ div.middle {
 }
 
 div#debugPanel {
--    overflow: auto;
+    float: middle;
+-   overflow: auto;
 }
-

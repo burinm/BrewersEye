@@ -103,19 +103,17 @@ function updateStatistics() {
 
             // Ambient temperature alerts
             if (item.id == "maxAmbientTemperatureAlert") {
-console.log("maxAmbientTemperatureAlert 1" + latest_ambient_temp);
                 if (latest_ambient_temp !== undefined) {
-                    if (latest_ambient_temp >= item.value) {
-                        alert_messages.push( { 'message': "Ambient temperature rose above", 'value':item.value } );
-                        console.log("maxAmbientTemperatureAlert!");
+                    if (latest_ambient_temp >= item.constraint) {
+                        alert_messages.push( { 'message': "Ambient temperature rose above", 'constraint':item.constraint, 'value':latest_ambient_temp } );
                     }
                 }
             }
 
             if (item.id == "minAmbientTemperatureAlert") {
                 if (latest_ambient_temp !== undefined) {
-                    if (latest_ambient_temp <= item.value) {
-                        alert_messages.push( { 'message': "Ambient temperature fell below", 'value':item.value } );
+                    if (latest_ambient_temp <= item.constraint) {
+                        alert_messages.push( { 'message': "Ambient temperature fell below", 'constraint':item.constraint, 'value':latest_ambient_temp } );
                     }
                 }
             }
@@ -123,16 +121,16 @@ console.log("maxAmbientTemperatureAlert 1" + latest_ambient_temp);
             // Fermenter temperature alerts
             if (item.id == "maxFermenterTemperatureAlert") {
                 if (latest_fermentation_temp !== undefined) {
-                    if (latest_fermentation_temp >= item.value) {
-                        alert_messages.push( { 'message': "Fermenter temperature rose above", 'value':item.value } );
+                    if (latest_fermentation_temp >= item.constraint) {
+                        alert_messages.push( { 'message': "Fermenter temperature rose above", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
                     }
                 }
             }
 
             if (item.id == "minFermenterTemperatureAlert") {
                 if (latest_fermentation_temp !== undefined) {
-                    if (latest_fermentation_temp <= item.value) {
-                        alert_messages.push( { 'message': "Fermenter temperature fell below", 'value':item.value } );
+                    if (latest_fermentation_temp <= item.constraint) {
+                        alert_messages.push( { 'message': "Fermenter temperature fell below", 'constraint':item.constraint, 'value':latest_fermentation_temp } );
                     }
                 }
             }
@@ -140,8 +138,8 @@ console.log("maxAmbientTemperatureAlert 1" + latest_ambient_temp);
             // Bubble average alerts
             if (item.id == "maxBubbles") {
                 if (latest_bubbles_avg !== undefined) {
-                    if (latest_bubbles_avg >= item.value) {
-                        alert_messages.push( { 'message': "Average bubble per minute (bmp) exceeded", 'value':item.value } );
+                    if (latest_bubbles_avg >= item.constraint) {
+                        alert_messages.push( { 'message': "Average bubble per minute (bmp) exceeded", 'constraint':item.constraint, 'value':latest_bubbles_avg } );
                     }
                 }
             }
@@ -152,11 +150,11 @@ console.log("maxAmbientTemperatureAlert 1" + latest_ambient_temp);
     let currentDate = formatDate(new Date());
 
     if (alert_messages.length == 0) {
-        newHtml="No current alerts as of: " + currentDate;
+        newHtml="<p style='color:green;'>No current alerts as of: " + currentDate + "</p>";
     }
 
     alert_messages.forEach(function(item) {
-        newHtml += "<li>" + item.message + ":" + item.value + " at" + currentDate + "</li>";
+        newHtml += "<li style='color:red;'>" + item.message + "{" + item.constraint + "} Value = {" + item.value + "} " + currentDate + "</li>";
     });
 
     statusField.innerHTML = newHtml;
