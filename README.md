@@ -132,38 +132,38 @@ Point your web browser to 172.16.0.1:8080\
 
 ### Server
 
-**receiver.py** - main gateway executable
-**driver.py** - main sensor array executable
+**receiver.py** - main gateway executable\
+**driver.py** - main sensor array executable\
 
-**bubbles.py** - driver for infrared GPIO bubble sensor
-**db.py** - driver to access mySQL database
-**max31820.py** - driver for max32820/DS18B20 1-wire temperature sensor
-**max31855.py** - driver for type-k SPI peripheral
-**MessageParser.py** - Parse Brewer's Eye messages in a stream
-**MessageProtocol.py** - Brewer's Eye message protocol
-**sendmail.py** - Send emails through SMTP server
-**thingspeak.py** - connector to Thingspeak service
+**bubbles.py** - driver for infrared GPIO bubble sensor\
+**db.py** - driver to access mySQL database\
+**max31820.py** - driver for max32820/DS18B20 1-wire temperature sensor\
+**max31855.py** - driver for type-k SPI peripheral\
+**MessageParser.py** - Parse Brewer's Eye messages in a stream\
+**MessageProtocol.py** - Brewer's Eye message protocol\
+**sendmail.py** - Send emails through SMTP server\
+**thingspeak.py** - connector to Thingspeak service\
 **webserver.py** - tornado webserver
 
 **CircularBuffer.py** - Circle buffer utility for message stack
 
 **bubbles.service** - sensor array installation file for startup
 
-**sql.table** - Information on mySQL setup
+**sql.table** - Information on mySQL setup\
 **daemon.txt** - Notes on creating daemon service
 
 
 ### Client
 
-**index.html** - main Brewer's Eye landing page
-**timelineGraph.js** - backend to handle graph/database interaction
-**alerts.html** - change/update alerts
-**alerts.js** - alerts backend
-**bubble.js** - animation of rising bubble
-**mystyles.css** - custom sytles
+**index.html** - main Brewer's Eye landing page\
+**timelineGraph.js** - backend to handle graph/database interaction\
+**alerts.html** - change/update alerts\
+**alerts.js** - alerts backend\
+**bubble.js** - animation of rising bubble\
+**mystyles.css** - custom sytles\
 **refresh.js** - periodically update statistics on graph
 
 ### Client libraries
-**jquery-3.4.1**
+**jquery-3.4.1**\
 **vis-6.2.9**
 
