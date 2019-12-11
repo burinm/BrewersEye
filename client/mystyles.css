@@ -73,3 +73,10 @@ div#debugPanel {
     float: middle;
 -   overflow: auto;
 }
+
+# https://stackoverflow.com/questions/31618959/how-do-i-define-custom-colors-for-my-stacked-bar-charts-in-vis-js
+.bubbleAverageClass {
+    stroke-width:2px;
+    stroke: purple;
+    fill: white;
+}

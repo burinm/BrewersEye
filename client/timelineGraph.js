@@ -293,11 +293,12 @@ groups.add(
 groups.add(
  {
     id: sensorEnum.BUBBLES_AVG,
+    className: 'bubbleAverageClass',
     style: 'bar',
     options: {
         drawPoints: {
             size:5,
-            style: 'circle'
+            style: 'circle',
         }
     }
  }
