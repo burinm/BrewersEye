@@ -1,7 +1,7 @@
 # BrewersEye
 Homebrew remote sensor array
 
-![Output waveform](hardware.png?raw=true "Fermenter hooked up to Sensor arryay")
+![Output waveform](hardware.jpg?raw=true "Fermenter hooked up to Sensor arryay")
 
 
 #### Developed by: Micheal Burin
