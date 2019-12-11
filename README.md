@@ -98,7 +98,7 @@ $ mysql -u sensors --password=password
 **Install code from GitHub**
 
 ```sh
-$ git clone --recurse-submodules https://github.com/burinm/EID.git
+$ git clone --recurse-submodules https://github.com/burinm/BrewersEye.git
 $ cd BrewersEye 
 
 #sensors array
