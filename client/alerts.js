@@ -41,6 +41,14 @@ let alertsContainer = document.getElementById("alertsContainer");
 alertsContainer.innerHTML="";
 let html = "";
 
+//Check for already stored alerts list
+let jsonString = localStorage.getItem('alertsList');
+if (jsonString !== undefined) {
+    console.log("Loading alerts list from local storage");
+    alertsList = JSON.parse(jsonString);
+}
+
+
 alertsList.forEach(function(entry) {
     html += "<p>";
 
@@ -72,27 +80,46 @@ let elementDescs = [];
 let elementSliders = [];
 let elementValues = [];
 
+function enableAlertElement(index) {
+    elementDescs[index].className = "turnedOn";
+    elementValues[index].className = "turnedOn";
+    elementSliders[index].className = "slider sliderOn";
+    elementSliders[index].disabled = false;
+}
+
+function disableAlertElement(index) {
+    elementDescs[index].className = "greyedOut";
+    elementValues[index].className = "greyedOut";
+    elementSliders[index].className = "slider sliderOff";
+    elementSliders[index].disabled = true;
+}
+
 alertsList.forEach(function(entry, index) {
+    console.log("Initializing:" + entry.id);
+
     elementAlerts[index] = document.getElementById(entry.id + "Alert");
     elementDescs[index] = document.getElementById(entry.id + "Desc");
     elementSliders[index] = document.getElementById(entry.id + "Slider");
     elementValues[index]= document.getElementById(entry.id + "Value");
 
-    console.log(entry.id + "Alert");
+    elementAlerts[index].checked = alertsList[index].on;
+    elementSliders[index].value = alertsList[index].constraint;
+    elementValues[index].innerHTML = alertsList[index].constraint;
+    if (alertsList[index].on == true) {
+        enableAlertElement(index);
+    } else {
+        disableAlertElement(index);
+    }
+
+
     elementAlerts[index].onclick = function(value) {
         if (elementAlerts[index].checked == true) {
-            elementDescs[index].className = "turnedOn";
-            elementValues[index].className = "turnedOn";
-            elementSliders[index].className = "slider sliderOn";
-            elementSliders[index].disabled = false;
+            enableAlertElement(index);
             alertsPageStatus.innerHTML = "changed";
             alertsList[index].on = true;
             console.log("new value checked");
         } else {
-            elementDescs[index].className = "greyedOut";
-            elementValues[index].className = "greyedOut";
-            elementSliders[index].className = "slider sliderOff";
-            elementSliders[index].disabled = true;
+            disableAlertElement(index);
             alertsPageStatus.innerHTML = "changed";
             alertsList[index].on  = false;
             console.log("new value unchecked");

@@ -95,11 +95,14 @@ function updateStatistics() {
     // https://theshravan.net/blog/storing-json-objects-in-html5-local-storage/
     let jsonString = localStorage.getItem('alertsList');
     let alertsCurrent = JSON.parse(jsonString);
+    let alertsEnabledCount = 0;
     console.log(alertsCurrent);
 
     //Check for any alerts if they are turned on
+
     alertsCurrent.forEach(function(item) {
         if (item.on == true) {
+            alertsEnabledCount += 1;
 
             // Ambient temperature alerts
             if (item.id == "maxAmbientTemperatureAlert") {
@@ -136,7 +139,7 @@ function updateStatistics() {
             }
 
             // Bubble average alerts
-            if (item.id == "maxBubbles") {
+            if (item.id == "maxBubblesAlert") {
                 if (latest_bubbles_avg !== undefined) {
                     if (latest_bubbles_avg >= item.constraint) {
                         alert_messages.push( { 'message': "Average bubble per minute (bmp) exceeded", 'constraint':item.constraint, 'value':latest_bubbles_avg } );
@@ -150,7 +153,7 @@ function updateStatistics() {
     let currentDate = formatDate(new Date());
 
     if (alert_messages.length == 0) {
-        newHtml="<p style='color:green;'>No current alerts as of: " + currentDate + "</p>";
+        newHtml="<p style='color:green;'>No current alerts as of: " + currentDate + " (" + alertsEnabledCount + " alerts enabled)</p>";
     }
 
     alert_messages.forEach(function(item) {
