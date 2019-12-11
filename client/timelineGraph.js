@@ -350,4 +350,4 @@ timeline.on('select', function(items, event){
     console.log(items);
 });
 
-export {graphAddItem, sensorEnum};
+export {graphAddItem, sensorEnum, formatDate};

@@ -1,45 +1,44 @@
 "use strict";
 
+let submitAlerts = document.getElementById("submitAlerts");
+let alertsPageStatus = document.getElementById("alertsPageStatus");
 
 let alertsList = [
                 {
-                    on: false,
-                    id: 'maxAmbientTemperature',
-                    desc: "Ambient temperature rises over:",
-                    value: null
+                    'on': false,
+                    'id': 'maxAmbientTemperatureAlert',
+                    'desc': "Ambient temperature rises over:",
+                    'value': 50
                 },
                 {
-                    on: false,
-                    id: 'minAmbientTemperature',
-                    desc: "Ambient temperature falls below:",
-                    value: null
+                    'on': false,
+                    'id': 'minAmbientTemperatureAlert',
+                    'desc': "Ambient temperature falls below:",
+                    'value': 50
                 },
                 {
-                    on: false,
-                    id: 'maxFermenterTemperature',
-                    desc: "Fermenter temperature rises above:",
-                    value: null
+                    'on': false,
+                    'id': 'maxFermenterTemperatureAlert',
+                    'desc': "Fermenter temperature rises above:",
+                    'value': 50
                 },
                 {
-                    on: false,
-                    id: 'minFermenterTemperature',
-                    desc: "Fermenter temperature falls below:",
-                    value: null
+                    'on': false,
+                    'id': 'minFermenterTemperatureAlert',
+                    'desc': "Fermenter temperature falls below:",
+                    'value': 50
                 },
                 {
-                    on: false,
-                    id: 'maxBubbles',
-                    desc: "Bubbles per minute (bpm) rise above:",
-                    value: null
+                    'on': false,
+                    'id': 'maxBubblesAlert',
+                    'desc': "Bubbles per minute (bpm) rise above:",
+                    'value': 50
                 },
 ];
-                    
 
 let alertsContainer = document.getElementById("alertsContainer");
 
 alertsContainer.innerHTML="";
-
-
 let html = "";
 
 alertsList.forEach(function(entry) {
@@ -86,17 +85,27 @@ alertsList.forEach(function(entry, index) {
             elementValues[index].className = "turnedOn";
             elementSliders[index].className = "slider sliderOn";
             elementSliders[index].disabled = false;
+            alertsPageStatus.innerHTML = "changed";
+            alertsList[index].on = true;
+            console.log("new value checked");
         } else {
             elementDescs[index].className = "greyedOut";
             elementValues[index].className = "greyedOut";
             elementSliders[index].className = "slider sliderOff";
             elementSliders[index].disabled = true;
+            alertsPageStatus.innerHTML = "changed";
+            alertsList[index].on  = false;
+            console.log("new value unchecked");
         }
     }
 
     console.log(entry.id + "Slider");
     elementSliders[index].onchange = function(value) {
         elementValues[index].innerHTML = elementSliders[index].value;
+        alertsPageStatus.innerHTML = "changed";
+        console.log(typeof(value));
+        alertsList[index].value = elementSliders[index].value;
+        console.log("new value set");
     }
 });
 
@@ -115,6 +124,15 @@ alertsList.forEach(function(entry, index) {
             <div class="clear_formatting"></div-->
         </p>
 */
+
+
+submitAlerts.onclick = (function() {
+    let jsonString = JSON.stringify(alertsList);
+    console.log("Saving: " + jsonString);
+    localStorage.setItem('alertsList', jsonString);
+
+    alertsPageStatus.innerHTML = "Current Settings (saved)"
+});
 
 let testEmail = document.getElementById("testEmail");
 let emailAddress = document.getElementById("emailAddress");

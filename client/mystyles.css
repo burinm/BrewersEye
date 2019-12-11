@@ -68,3 +68,8 @@ div.middle {
     font-size: 20px;
     margin: 0; //No space between <p> tags
 }
+
+div#debugPanel {
+-    overflow: auto;
+}
+
