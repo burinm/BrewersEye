@@ -48,7 +48,8 @@ GPIO.setwarnings(False)
 
 class BubbleDetector:
 
-    portBubblesIn: int = BOARD.D6.id
+    # Note, if not using bubbler, tie high 3.3v with 4.7k
+    portBubblesIn: int = BOARD.D6.id  # GPIO6
     bubbleCount: int = 0
     bubbleEvent: Callable[[None], None] = None
 

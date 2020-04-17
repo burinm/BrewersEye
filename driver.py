@@ -18,7 +18,6 @@ from enum import IntEnum
 from queue import Queue
 from threading import Timer
 from bubbles import BubbleDetector
-from max31855 import TypeKReader
 from MessageProtocol import getCurrentTimestamp, parseMessage, createTemperatureMessage, createBubbleMessage, printRawMessage
 import serial
 import max31820
@@ -100,7 +99,7 @@ def readTemperature():
 
 def publishMessage(m: bytearray):
     parseMessage(m)  # Sanity check format
-    globals.xBee.write(m)
+    #globals.xBee.write(m)
     pass
 
 
@@ -114,7 +113,6 @@ class globals:
 
     # Sensor hooks
     bubbleCounter = BubbleDetector(countBubbles)
-    temperatureReaderTypeK = TypeKReader()
     temperatureReaderInside = partial(max31820.getTempC, 'inside')
     temperatureReaderOutside = partial(max31820.getTempC, 'outside')
 
@@ -124,8 +122,6 @@ class globals:
 
     # Queue for outgoing messages
     sendQ: Queue = Queue(max_messages)
-
-    xBee = serial.Serial('/dev/ttyUSB0', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 
 
 # Setup ctrl-C
@@ -137,19 +133,6 @@ def ctrl_c(signum, frame):
 
 
 signal.signal(signal.SIGINT, ctrl_c)
-
-if globals.xBee.is_open:
-    try:
-        globals.xBee.close()
-    except serial.SerialException as e:
-        print(e)
-        sys.exit()
-
-try:
-    globals.xBee.open()
-except serial.SerialException as e:
-    print(e)
-    sys.exit()
 
 globals.bubbleCounter.setup()
 globals.temperatureTimer.start()
@@ -212,5 +195,4 @@ while(globals.running):
         nextSend = timing + NEXT_M  # Schedule next message
 
 
-globals.xBee.close()
 print("Exiting")

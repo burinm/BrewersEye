@@ -26,6 +26,7 @@ This is not + -->  |+      |
     (*) Use a 4.7k - 10k pullup
     (*) sudo raspi-config -> 5 Interfacing Options -> P7 1-Wire -> Yes
     (*) Rasperry Pi 3b+ - Pin7, GPIO4
+    (*) Rasperry Pi A+ - Pin7, GPIO7
 
 
 """
